@@ -1,6 +1,7 @@
 'use client';
 
 import { CnpjSearch } from '@/components/CnpjSearch';
+import { CnpjGenerator } from '@/components/CnpjGenerator';
 
 export default function Home() {
   return (
@@ -18,6 +19,9 @@ export default function Home() {
             <nav className="hidden md:flex space-x-8">
               <a href="#features" className="text-gray-600 hover:text-gray-900 transition-colors">
                 Recursos
+              </a>
+              <a href="#tools" className="text-gray-600 hover:text-gray-900 transition-colors">
+                Ferramentas
               </a>
               <a href="#api" className="text-gray-600 hover:text-gray-900 transition-colors">
                 API
@@ -47,6 +51,24 @@ export default function Home() {
           {/* CNPJ Search Component */}
           <div className="max-w-2xl mx-auto">
             <CnpjSearch />
+          </div>
+        </div>
+      </section>
+
+      {/* Tools Section */}
+      <section id="tools" className="py-20 bg-gray-50/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Ferramentas para Desenvolvedores
+            </h2>
+            <p className="text-xl text-gray-600">
+              Facilite seus testes e desenvolvimento com nossas ferramentas gratuitas
+            </p>
+          </div>
+
+          <div className="max-w-2xl mx-auto">
+            <CnpjGenerator />
           </div>
         </div>
       </section>

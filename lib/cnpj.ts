@@ -146,3 +146,29 @@ export function parseCnpj(cnpj: string): {
     isValid: true,
   };
 }
+
+/**
+ * Gerar um CNPJ válido aleatório para testes
+ * Gera 12 dígitos aleatórios e calcula os dígitos verificadores
+ */
+export function generateValidCnpj(): string {
+  let base: string;
+
+  do {
+    // Gerar 12 dígitos aleatórios
+    base = '';
+    for (let i = 0; i < 12; i++) {
+      base += Math.floor(Math.random() * 10).toString();
+    }
+  } while (/^(\d)\1{11}$/.test(base)); // Evitar sequências repetidas
+
+  // Calcular primeiro dígito verificador
+  const firstDigit = calculateFirstDigit(base);
+
+  // Adicionar primeiro dígito e calcular segundo
+  const withFirstDigit = base + firstDigit.toString();
+  const secondDigit = calculateSecondDigit(withFirstDigit);
+
+  // Retornar CNPJ completo
+  return base + firstDigit.toString() + secondDigit.toString();
+}

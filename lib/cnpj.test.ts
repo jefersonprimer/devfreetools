@@ -10,6 +10,7 @@ import {
   isValidCnpj,
   formatCnpj,
   parseCnpj,
+  generateValidCnpj,
 } from './cnpj';
 
 function test(name: string, fn: () => void) {
@@ -113,6 +114,24 @@ test('parseCnpj: Parse invalid CNPJ', () => {
   assertEqual(result.cnpj, '11222333000182');
   assertFalse(result.isValid);
   assertTrue(result.error !== undefined);
+});
+
+// Generate valid CNPJ
+test('generateValidCnpj: Generate valid CNPJ', () => {
+  const cnpj = generateValidCnpj();
+  assertTrue(isValidCnpjFormat(cnpj));
+  assertTrue(isValidCnpjChecksum(cnpj));
+  assertTrue(isValidCnpj(cnpj));
+  assertEqual(cnpj.length, 14);
+});
+
+test('generateValidCnpj: Generate multiple unique CNPJs', () => {
+  const cnpjs = new Set();
+  for (let i = 0; i < 10; i++) {
+    const cnpj = generateValidCnpj();
+    cnpjs.add(cnpj);
+  }
+  assertEqual(cnpjs.size, 10); // All should be unique
 });
 
 console.log('\n✨ Tests completed\n');
