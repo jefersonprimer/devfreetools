@@ -9,6 +9,7 @@ const envSchema = z.object({
   STRIPE_PUBLIC_KEY: z.string().optional(),
   UPSTASH_REDIS_REST_URL: z.string().url().optional(),
   UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
+  JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
 });
 
 export type Env = z.infer<typeof envSchema>;
