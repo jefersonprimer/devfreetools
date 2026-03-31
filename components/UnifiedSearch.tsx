@@ -2,19 +2,39 @@
 
 import { useState, useEffect } from 'react';
 
+interface Partner {
+  name: string;
+  role: string;
+  entryDate: string | null;
+  ageRange: string;
+  country: string;
+}
+
 interface CnpjData {
   cnpj: string;
   cnpjFormatted: string;
   name: string;
+  tradeName?: string | null;
   status: string;
-  foundedAt?: string;
+  foundedAt?: string | null;
   mainActivity: string;
+  mainActivityCode?: string | null;
+  legalNature?: string | null;
+  capitalSocial?: string | null;
+  companySize?: string | null;
   address: {
     street: string;
+    complement?: string | null;
+    neighborhood?: string;
     city: string;
     state: string;
     zipCode: string;
   };
+  contact?: {
+    phones: string[];
+    email: string | null;
+  };
+  partners?: Partner[];
 }
 
 interface CpfData {
@@ -126,6 +146,27 @@ export function UnifiedSearch() {
   const isCnpjData = (data: any): data is CnpjData => 'cnpj' in data;
   const isCpfData = (data: any): data is CpfData => 'cpf' in data;
 
+  const formatCep = (cep: string) => {
+    if (!cep || cep.length !== 8) return cep;
+    return `${cep.slice(0, 5)}-${cep.slice(5)}`;
+  };
+
+  const formatCurrency = (value: string | null | undefined) => {
+    if (!value) return null;
+    const num = parseFloat(value);
+    if (isNaN(num)) return value;
+    return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  };
+
+  const formatDate = (dateStr: string | null | undefined) => {
+    if (!dateStr) return null;
+    try {
+      return new Date(dateStr).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+    } catch {
+      return dateStr;
+    }
+  };
+
   return (
     <div className="w-full max-w-2xl mx-auto">
       {/* Search Form */}
@@ -185,13 +226,19 @@ export function UnifiedSearch() {
           {isCnpjData(result.data) && result.metadata ? (
             /* CNPJ Result Card */
             <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+              {/* Header */}
               <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-6">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div>
-                    <h3 className="text-2xl font-bold">{result.data.name}</h3>
-                    <p className="text-blue-100 font-mono tracking-wider">{result.data.cnpjFormatted}</p>
+                <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-xl md:text-2xl font-bold leading-tight break-words">{result.data.name}</h3>
+                    {result.data.tradeName && (
+                      <p className="text-blue-200 text-sm mt-1">
+                        <span className="text-blue-300 text-xs font-semibold uppercase">Nome Fantasia:</span> {result.data.tradeName}
+                      </p>
+                    )}
+                    <p className="text-blue-100 font-mono tracking-wider mt-2">{result.data.cnpjFormatted}</p>
                   </div>
-                  <div className={`self-start md:self-center px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-wide border-2 ${
+                  <div className={`self-start shrink-0 px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-wide border-2 ${
                     result.data.status === 'active'
                       ? 'bg-green-500/20 border-green-400 text-white'
                       : 'bg-red-500/20 border-red-400 text-white'
@@ -203,47 +250,146 @@ export function UnifiedSearch() {
 
               <div className="p-8">
                 <div className="grid md:grid-cols-2 gap-8">
+                  {/* Dados da Empresa */}
                   <div className="space-y-6">
                     <div>
-                      <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Dados da Empresa</h4>
+                      <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center">
+                        <svg className="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                        Dados da Empresa
+                      </h4>
                       <div className="space-y-4">
                         <div className="group">
-                          <span className="text-sm font-medium text-gray-500 group-hover:text-blue-600 transition-colors">Razão Social</span>
-                          <p className="text-gray-900 font-semibold">{result.data.name}</p>
-                        </div>
-                        <div className="group">
-                          <span className="text-sm font-medium text-gray-500 group-hover:text-blue-600 transition-colors">Atividade Principal</span>
-                          <p className="text-gray-900 font-semibold">{result.data.mainActivity}</p>
+                          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Atividade Principal</span>
+                          <p className="text-gray-900 font-semibold text-sm mt-0.5">
+                            {result.data.mainActivityCode && (
+                              <span className="text-blue-600 font-mono text-xs mr-2 bg-blue-50 px-1.5 py-0.5 rounded">{result.data.mainActivityCode}</span>
+                            )}
+                            {result.data.mainActivity}
+                          </p>
                         </div>
                         {result.data.foundedAt && (
                           <div className="group">
-                            <span className="text-sm font-medium text-gray-500 group-hover:text-blue-600 transition-colors">Data de Abertura</span>
-                            <p className="text-gray-900 font-semibold">
-                              {new Date(result.data.foundedAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
-                            </p>
+                            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Data de Abertura</span>
+                            <p className="text-gray-900 font-semibold text-sm mt-0.5">{formatDate(result.data.foundedAt)}</p>
                           </div>
                         )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-6">
-                    <div>
-                      <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Localização</h4>
-                      <div className="space-y-4">
-                        <div className="group">
-                          <span className="text-sm font-medium text-gray-500 group-hover:text-blue-600 transition-colors">Endereço Completo</span>
-                          <p className="text-gray-900 font-semibold leading-relaxed">
-                            {result.data.address.street}<br />
-                            {result.data.address.city} - {result.data.address.state}<br />
-                            CEP: {result.data.address.zipCode}
-                          </p>
+                        {result.data.legalNature && (
+                          <div className="group">
+                            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Natureza Jurídica</span>
+                            <p className="text-gray-900 font-semibold text-sm mt-0.5">{result.data.legalNature}</p>
+                          </div>
+                        )}
+                        <div className="flex gap-4">
+                          {result.data.capitalSocial && (
+                            <div className="group flex-1">
+                              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Capital Social</span>
+                              <p className="text-gray-900 font-semibold text-sm mt-0.5">{formatCurrency(result.data.capitalSocial)}</p>
+                            </div>
+                          )}
+                          {result.data.companySize && (
+                            <div className="group flex-1">
+                              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Porte</span>
+                              <p className="text-gray-900 font-semibold text-sm mt-0.5">{result.data.companySize}</p>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
                   </div>
+
+                  {/* Localização e Contato */}
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center">
+                        <svg className="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        Localização
+                      </h4>
+                      <div className="space-y-2">
+                        {result.data.address.street && (
+                          <p className="text-gray-900 font-semibold text-sm">{result.data.address.street}</p>
+                        )}
+                        {result.data.address.complement && (
+                          <p className="text-gray-600 text-sm">{result.data.address.complement}</p>
+                        )}
+                        {result.data.address.neighborhood && (
+                          <p className="text-gray-600 text-sm">{result.data.address.neighborhood}</p>
+                        )}
+                        <p className="text-gray-900 font-semibold text-sm">
+                          {result.data.address.city}{result.data.address.state ? ` - ${result.data.address.state}` : ''}
+                        </p>
+                        {result.data.address.zipCode && (
+                          <p className="text-gray-500 text-sm font-mono">CEP: {formatCep(result.data.address.zipCode)}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Contato */}
+                    {result.data.contact && (result.data.contact.phones.length > 0 || result.data.contact.email) && (
+                      <div>
+                        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center">
+                          <svg className="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                          </svg>
+                          Contato
+                        </h4>
+                        <div className="space-y-2">
+                          {result.data.contact.phones.map((phone, i) => (
+                            <p key={i} className="text-gray-900 font-semibold text-sm flex items-center">
+                              <span className="text-gray-400 text-xs mr-2">📞</span> {phone}
+                            </p>
+                          ))}
+                          {result.data.contact.email && (
+                            <p className="text-gray-900 font-semibold text-sm flex items-center">
+                              <span className="text-gray-400 text-xs mr-2">✉️</span>
+                              <a href={`mailto:${result.data.contact.email}`} className="text-blue-600 hover:underline">
+                                {result.data.contact.email}
+                              </a>
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
+                {/* Sócios */}
+                {result.data.partners && result.data.partners.length > 0 && (
+                  <div className="mt-8 pt-6 border-t border-gray-100">
+                    <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center">
+                      <svg className="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                      Quadro Societário ({result.data.partners.length})
+                    </h4>
+                    <div className="space-y-3">
+                      {result.data.partners.map((partner, i) => (
+                        <div key={i} className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center shrink-0 mt-0.5">
+                            <span className="text-white text-xs font-bold">{partner.name.charAt(0)}</span>
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-gray-900 font-semibold text-sm truncate">{partner.name}</p>
+                            <div className="flex flex-wrap gap-2 mt-1">
+                              {partner.role && (
+                                <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">{partner.role.trim()}</span>
+                              )}
+                              {partner.entryDate && (
+                                <span className="text-xs text-gray-400">Desde {formatDate(partner.entryDate)}</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Metadata footer */}
                 <div className="mt-8 pt-6 border-t border-gray-100 flex flex-wrap gap-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
                   <div className="flex items-center bg-gray-50 px-3 py-1.5 rounded-lg">
                     <svg className="w-3.5 h-3.5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

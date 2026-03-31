@@ -36,8 +36,10 @@ export async function GET() {
 
     const user = userResult[0];
 
-    // Get current month usage
-    const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+    // Get current month usage (format must match ratelimit.ts: YYYY-MM-DD first day)
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const currentMonth = monthStart.toISOString().split('T')[0];
     const usageResult = await db
       .select()
       .from(monthlyUsage)

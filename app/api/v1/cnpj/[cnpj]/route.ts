@@ -43,21 +43,60 @@ async function fetchCnpjData(cnpj: string): Promise<Record<string, unknown>> {
 
     const data = await response.json();
 
+    // Extrair dados do estabelecimento (onde ficam a maioria dos campos)
+    const est = data.estabelecimento || {};
+    const cidade = est.cidade || {};
+    const estado = est.estado || {};
+    const atividadePrincipal = est.atividade_principal || {};
+
+    // Montar endereço completo
+    const streetParts = [
+      est.tipo_logradouro,
+      est.logradouro,
+      est.numero,
+    ].filter(Boolean).join(' ');
+
+    // Montar telefones
+    const phones: string[] = [];
+    if (est.ddd1 && est.telefone1) phones.push(`(${est.ddd1}) ${est.telefone1}`);
+    if (est.ddd2 && est.telefone2) phones.push(`(${est.ddd2}) ${est.telefone2}`);
+
+    // Mapear sócios
+    const partners = (data.socios || []).map((s: any) => ({
+      name: s.nome || '',
+      role: s.qualificacao_socio?.descricao || '',
+      entryDate: s.data_entrada || null,
+      ageRange: s.faixa_etaria || '',
+      country: s.pais?.nome || '',
+    }));
+
     // Transformar resposta da API para nosso formato padrão
     return {
       cnpj: cleanedCnpj,
       cnpjFormatted: formatCnpj(cleanedCnpj),
-      name: data.nome || data.name || 'Unknown',
-      status: data.status === 'Ativa' ? 'active' : 'inactive',
-      foundedAt: data.data_abertura || null,
-      mainActivity: data.cnae_fiscal?.descricao || 'Unknown',
+      name: data.razao_social || 'Desconhecido',
+      tradeName: est.nome_fantasia || null,
+      status: est.situacao_cadastral === 'Ativa' ? 'active' : 'inactive',
+      foundedAt: est.data_inicio_atividade || null,
+      mainActivity: atividadePrincipal.descricao || 'Desconhecido',
+      mainActivityCode: atividadePrincipal.id || null,
+      legalNature: data.natureza_juridica?.descricao || null,
+      capitalSocial: data.capital_social || null,
+      companySize: data.porte?.descricao || null,
       address: {
-        street: `${data.logradouro || ''} ${data.numero || ''}`.trim(),
-        city: data.municipio || '',
-        state: data.uf || '',
-        zipCode: data.cep || '',
+        street: streetParts,
+        complement: est.complemento || null,
+        neighborhood: est.bairro || '',
+        city: cidade.nome || '',
+        state: estado.sigla || '',
+        zipCode: est.cep || '',
       },
-      // Dados adicionais da API
+      contact: {
+        phones,
+        email: est.email || null,
+      },
+      partners,
+      // Dados brutos completos da API
       rawData: data,
     };
   } catch (error) {
