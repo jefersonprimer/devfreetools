@@ -17,7 +17,7 @@ export default function Home() {
               <div className="w-8 h-8 bg-linear-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
                 <span className="text-white font-bold text-sm">P</span>
               </div>
-              <span className="text-xl font-bold text-gray-900 tracking-tight">PrimerAPI</span>
+              <span className="text-xl font-bold text-gray-900 tracking-tight">Devfreetools</span>
             </div>
             <nav className="hidden md:flex items-center space-x-8">
               <a href="#features" className="text-sm font-semibold text-gray-500 hover:text-blue-600 transition-colors">Recursos</a>
@@ -278,7 +278,7 @@ export default function Home() {
                 <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-sm">P</span>
                 </div>
-                <span className="text-xl font-bold text-gray-900 tracking-tight">PrimerAPI</span>
+                <span className="text-xl font-bold text-gray-900 tracking-tight">Devfreetools</span>
               </div>
               <p className="text-gray-500 max-w-sm leading-relaxed font-medium">
                 Infraestrutura de dados para empresas modernas. Valide identidades e consulte dados corporativos com a melhor API do mercado.
@@ -306,7 +306,7 @@ export default function Home() {
 
           <div className="border-t border-gray-200 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">
-              &copy; 2026 PrimerAPI. Todos os direitos reservados.
+              PrimerLabs &copy; 2026. Todos os direitos reservados.
             </p>
             <div className="flex space-x-6">
               <a href="#" className="text-gray-400 hover:text-gray-600 transition-colors">

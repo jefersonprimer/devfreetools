@@ -62,7 +62,7 @@ export default function LoginPage() {
             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25 group-hover:shadow-blue-500/40 transition-shadow">
               <span className="text-white font-bold text-lg">P</span>
             </div>
-            <span className="text-2xl font-bold text-white tracking-tight">PrimerAPI</span>
+            <span className="text-2xl font-bold text-white tracking-tight">Devfreetools</span>
           </a>
         </div>
 
@@ -141,7 +141,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <p className="text-center text-gray-600 text-xs mt-8">
-          © 2026 PrimerAPI. Todos os direitos reservados.
+          © 2026 PrimerLabs. Todos os direitos reservados.
         </p>
       </div>
     </div>

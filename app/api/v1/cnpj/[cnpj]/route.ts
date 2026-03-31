@@ -28,7 +28,7 @@ async function fetchCnpjData(cnpj: string): Promise<Record<string, unknown>> {
     // 2. Buscar dados em API real
     const response = await fetch(`https://publica.cnpj.ws/cnpj/${cleanedCnpj}`, {
       headers: {
-        'User-Agent': 'PrimerAPI/1.0',
+        'User-Agent': 'Devfreetools/1.0',
       },
       signal: AbortSignal.timeout(10000), // 10 segundos de timeout
     });

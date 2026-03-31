@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title:  "Primer a",
+  title:  "Devfreetools | PrimerLabs",
   description: "Acesse dados de empresas e valide CPFs em segundos. Uma única API para toda a sua esteira de onboarding.",
 };
 
@@ -26,9 +26,10 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

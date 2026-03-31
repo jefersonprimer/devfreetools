@@ -115,7 +115,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
                 <span className="text-white font-bold text-sm">P</span>
               </div>
-              <span className="text-lg font-bold text-white tracking-tight">PrimerAPI</span>
+              <span className="text-lg font-bold text-white tracking-tight">Devfreetools</span>
             </a>
           </div>
 
