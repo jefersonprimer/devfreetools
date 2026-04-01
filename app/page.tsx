@@ -48,17 +48,17 @@ export default function Home() {
         
         <div className="max-w-4xl mx-auto text-center px-4">
           <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider mb-6 border border-blue-100">
-            <span>Novo: Validação Inteligente de CPF</span>
+            <span>Novo: Encurtador de Links Integrado</span>
           </div>
           <h1 className="text-5xl sm:text-7xl font-black text-gray-900 mb-8 tracking-tighter leading-tight">
-            Consulta de Documentos
+            Tudo que um Dev precisa em
             <span className="block text-transparent bg-clip-text bg-linear-to-r from-blue-600 via-indigo-600 to-purple-600">
-              Sem Fricção
+              Um Só Lugar
             </span>
           </h1>
           <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed">
-            Acesse dados de empresas e valide CPFs em segundos.
-            Uma única API para toda a sua esteira de onboarding.
+            Consulta de CNPJ, geração de documentos e encurtador de links. 
+            Acelere seu desenvolvimento com nossas ferramentas gratuitas.
           </p>
 
           {/* Unified Search Component */}
@@ -76,7 +76,7 @@ export default function Home() {
               Sandbox para Desenvolvedores
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Gere dados sintéticos válidos para acelerar seus ciclos de teste e desenvolvimento.
+              Gere dados sintéticos e encurte links para acelerar seus ciclos de teste e desenvolvimento.
             </p>
           </div>
 
@@ -102,12 +102,12 @@ export default function Home() {
             <div className="group p-8 rounded-3xl hover:bg-gray-50 transition-all duration-300">
               <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <svg className="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3 tracking-tight">Performance Extrema</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-3 tracking-tight">Links Inteligentes</h3>
               <p className="text-gray-600 leading-relaxed">
-                Latência sub-segundo garantida por nossa camada de cache distribuído em Redis.
+                Encurte URLs e acompanhe cliques em tempo real com nosso encurtador integrado.
               </p>
             </div>
 
@@ -117,9 +117,9 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3 tracking-tight">Validação Inteligente</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-3 tracking-tight">Validação de Documentos</h3>
               <p className="text-gray-600 leading-relaxed">
-                Heurísticas avançadas para detectar CPFs suspeitos e prevenir fraudes no onboarding.
+                Heurísticas avançadas para validar CPFs e consultar dados reais de CNPJ em segundos.
               </p>
             </div>
 

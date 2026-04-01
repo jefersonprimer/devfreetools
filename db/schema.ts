@@ -172,3 +172,27 @@ export const plans = pgTable('plans', {
   monthlyPrice: numeric('monthly_price', { precision: 10, scale: 2 })
     .notNull(),
 });
+
+// ============================================================================
+// SHORT LINKS TABLE
+// ============================================================================
+export const shortLinks = pgTable(
+  'short_links',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    code: text('code').unique().notNull(),
+    originalUrl: text('original_url').notNull(),
+    clicks: integer('clicks').notNull().default(0),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }),
+  },
+  (table) => ({
+    codeIdx: index('idx_short_links_code').on(table.code),
+    userIdIdx: index('idx_short_links_user_id').on(table.userId),
+  })
+);
