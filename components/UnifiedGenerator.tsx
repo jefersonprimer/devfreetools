@@ -3,11 +3,17 @@
 import { useState } from 'react';
 
 interface GeneratedDoc {
-  type: 'CPF' | 'CNPJ' | 'CERTIDAO_NASCIMENTO' | 'LINK';
+  type: 'CPF' | 'CNPJ' | 'CERTIDAO_NASCIMENTO' | 'CNS' | 'LINK';
   display?: 'text' | 'json' | 'compact';
   value: string;
   formatted: string;
   originalUrl?: string;
+  // CNS metadata (apenas para exibição)
+  cnsType?: string;
+  hasCpf?: boolean;
+  cpf?: string;
+  cpfFormatted?: string;
+  cnsGenerateType?: 'auto' | 'definitivo' | 'provisorio';
 }
 
 export function UnifiedGenerator() {
@@ -75,6 +81,44 @@ export function UnifiedGenerator() {
     } catch (error) {
       console.error('Error generating document:', error);
       setError('Falha ao gerar documento');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const generateCnsDoc = async (type: 'auto' | 'definitivo' | 'provisorio') => {
+    setLoading(true);
+    setCopied(false);
+    setError(null);
+    try {
+      const response = await fetch(`/api/v1/cns/generate?count=1&type=${encodeURIComponent(type)}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || data.message || 'Falha ao gerar CNS');
+        return;
+      }
+
+      const item = data.data?.[0];
+      if (!item) {
+        setError('Falha ao gerar CNS');
+        return;
+      }
+
+      setGenerated({
+        type: 'CNS',
+        display: 'text',
+        value: item.cns,
+        formatted: item.cnsFormatted || item.cns,
+        cnsType: item.type,
+        hasCpf: item.hasCpf,
+        cpf: item.cpf,
+        cpfFormatted: item.cpfFormatted,
+        cnsGenerateType: type,
+      });
+    } catch (error) {
+      console.error('Error generating CNS:', error);
+      setError('Falha ao gerar CNS');
     } finally {
       setLoading(false);
     }
@@ -153,7 +197,7 @@ export function UnifiedGenerator() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
             <div className="text-center md:text-left">
               <h3 className="text-xl font-bold text-foreground">Gerador de Documentos</h3>
-              <p className="text-muted-foreground text-sm">Gere dados sintéticos para testes: CPF, CNPJ e certidão.</p>
+              <p className="text-muted-foreground text-sm">Gere dados sintéticos para testes: CPF, CNPJ, CNS e certidão.</p>
             </div>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <button
@@ -169,6 +213,20 @@ export function UnifiedGenerator() {
                 className="px-6 py-2.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold rounded-xl hover:bg-blue-500/20 transition-all border border-blue-500/20"
               >
                 Gerar CNPJ
+              </button>
+              <button
+                onClick={() => generateCnsDoc('definitivo')}
+                disabled={loading}
+                className="px-6 py-2.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold rounded-xl hover:bg-emerald-500/20 transition-all border border-emerald-500/20"
+              >
+                Gerar CNS
+              </button>
+              <button
+                onClick={() => generateCnsDoc('provisorio')}
+                disabled={loading}
+                className="px-6 py-2.5 bg-teal-500/10 text-teal-600 dark:text-teal-400 font-bold rounded-xl hover:bg-teal-500/20 transition-all border border-teal-500/20 whitespace-nowrap"
+              >
+                Gerar CNS Provisório
               </button>
               <div className="flex items-center gap-3">
                 <select
@@ -276,6 +334,15 @@ export function UnifiedGenerator() {
                   </div>
                 )}
 
+                {generated.type === 'CNS' && (
+                  <div className="mt-2 text-xs sm:text-sm font-semibold text-muted-foreground space-y-1">
+                    <div>Tipo: {generated.cnsType || 'desconhecido'}</div>
+                    <div>
+                      CPF: {generated.hasCpf ? (generated.cpfFormatted || generated.cpf || '-') : 'Não detectado'}
+                    </div>
+                  </div>
+                )}
+
                 {generated.originalUrl && (
                   <p className="text-[10px] text-muted-foreground mt-1 truncate max-w-[250px]">
                     Para: {generated.originalUrl}
@@ -299,6 +366,7 @@ export function UnifiedGenerator() {
                       if (generated.type === 'CPF') return generateDoc('cpf');
                       if (generated.type === 'CNPJ') return generateDoc('cnpj');
                       if (generated.type === 'CERTIDAO_NASCIMENTO') return generateDoc('certidao-nascimento', certidaoFormat);
+                      if (generated.type === 'CNS') return generateCnsDoc(generated.cnsGenerateType || 'definitivo');
                     }}
                     className="p-3 bg-card border border-border text-muted-foreground rounded-xl hover:text-foreground hover:border-primary transition-all"
                   >

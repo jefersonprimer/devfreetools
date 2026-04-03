@@ -45,8 +45,19 @@ interface CpfData {
   message: string;
 }
 
+interface CnsData {
+  cns: string;
+  cnsFormatted: string;
+  type: 'definitivo' | 'provisorio' | 'desconhecido' | string;
+  isValid: boolean;
+  hasCpf: boolean;
+  cpf?: string;
+  cpfFormatted?: string;
+  message?: string;
+}
+
 interface ApiResponse {
-  data: CnpjData | CpfData;
+  data: CnpjData | CpfData | CnsData;
   metadata?: {
     cacheHit: boolean;
     consultedAt: string;
@@ -61,7 +72,7 @@ interface ApiResponse {
 
 export function UnifiedSearch() {
   const [inputValue, setInputValue] = useState('');
-  const [docType, setDocType] = useState<'CPF' | 'CNPJ' | 'UNKNOWN'>('UNKNOWN');
+  const [docType, setDocType] = useState<'CPF' | 'CNPJ' | 'CNS' | 'UNKNOWN'>('UNKNOWN');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ApiResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -69,15 +80,15 @@ export function UnifiedSearch() {
   const cleanValue = (val: string) => val.replace(/\D/g, '');
 
   const formatInput = (value: string) => {
-    const digits = cleanValue(value);
-    
+    const digits = cleanValue(value).slice(0, 15);
+
     if (digits.length <= 11) {
       // CPF format: 000.000.000-00
       if (digits.length <= 3) return digits;
       if (digits.length <= 6) return `${digits.slice(0, 3)}.${digits.slice(3)}`;
       if (digits.length <= 9) return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
       return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9, 11)}`;
-    } else {
+    } else if (digits.length <= 14) {
       // CNPJ format: 00.000.000/0001-00
       const limited = digits.slice(0, 14);
       if (limited.length <= 2) return limited;
@@ -85,6 +96,13 @@ export function UnifiedSearch() {
       if (limited.length <= 8) return `${limited.slice(0, 2)}.${limited.slice(2, 5)}.${limited.slice(5)}`;
       if (limited.length <= 12) return `${limited.slice(0, 2)}.${limited.slice(2, 5)}.${limited.slice(5, 8)}/${limited.slice(8)}`;
       return `${limited.slice(0, 2)}.${limited.slice(2, 5)}.${limited.slice(5, 8)}/${limited.slice(8, 12)}-${limited.slice(12)}`;
+    } else {
+      // CNS format: 000 0000 0000 000-0
+      if (digits.length <= 3) return digits;
+      if (digits.length <= 7) return `${digits.slice(0, 3)} ${digits.slice(3)}`;
+      if (digits.length <= 11) return `${digits.slice(0, 3)} ${digits.slice(3, 7)} ${digits.slice(7)}`;
+      if (digits.length <= 14) return `${digits.slice(0, 3)} ${digits.slice(3, 7)} ${digits.slice(7, 11)} ${digits.slice(11)}`;
+      return `${digits.slice(0, 3)} ${digits.slice(3, 7)} ${digits.slice(7, 11)} ${digits.slice(11, 14)}-${digits.slice(14)}`;
     }
   };
 
@@ -94,6 +112,8 @@ export function UnifiedSearch() {
       setDocType('CPF');
     } else if (digits.length === 14) {
       setDocType('CNPJ');
+    } else if (digits.length === 15) {
+      setDocType('CNS');
     } else {
       setDocType('UNKNOWN');
     }
@@ -111,12 +131,12 @@ export function UnifiedSearch() {
     const digits = cleanValue(inputValue);
 
     if (!digits) {
-      setError('Digite um CPF ou CNPJ');
+      setError('Digite um CPF, CNPJ ou CNS');
       return;
     }
 
-    if (digits.length !== 11 && digits.length !== 14) {
-      setError('Documento inválido. Digite 11 dígitos para CPF ou 14 para CNPJ.');
+    if (digits.length !== 11 && digits.length !== 14 && digits.length !== 15) {
+      setError('Documento inválido. Digite 11 dígitos para CPF, 14 para CNPJ ou 15 para CNS.');
       return;
     }
 
@@ -124,7 +144,7 @@ export function UnifiedSearch() {
     setError(null);
     setResult(null);
 
-    const type = digits.length === 11 ? 'cpf' : 'cnpj';
+    const type = digits.length === 11 ? 'cpf' : digits.length === 14 ? 'cnpj' : 'cns';
 
     try {
       const response = await fetch(`/api/v1/${type}/${digits}`);
@@ -145,6 +165,7 @@ export function UnifiedSearch() {
 
   const isCnpjData = (data: any): data is CnpjData => 'cnpj' in data;
   const isCpfData = (data: any): data is CpfData => 'cpf' in data;
+  const isCnsData = (data: any): data is CnsData => 'cns' in data;
 
   const formatCep = (cep: string) => {
     if (!cep || cep.length !== 8) return cep;
@@ -177,6 +198,8 @@ export function UnifiedSearch() {
               <span className="text-xs font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-2 py-1 rounded">CNPJ</span>
             ) : docType === 'CPF' ? (
               <span className="text-xs font-bold bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 px-2 py-1 rounded">CPF</span>
+            ) : docType === 'CNS' ? (
+              <span className="text-xs font-bold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-2 py-1 rounded">CNS</span>
             ) : (
               <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -187,7 +210,7 @@ export function UnifiedSearch() {
             type="text"
             value={inputValue}
             onChange={handleInputChange}
-            placeholder="Digite CPF ou CNPJ para consultar"
+            placeholder="Digite CPF, CNPJ ou CNS para consultar"
             className="w-full pl-16 pr-32 py-5 text-lg border-2 border-border rounded-2xl shadow-sm focus:border-primary text-foreground focus:ring-4 focus:ring-primary/10 outline-none transition-all bg-card"
             disabled={loading}
           />
@@ -474,6 +497,72 @@ export function UnifiedSearch() {
                 </div>
               </div>
             </div>
+          ) : isCnsData(result.data) ? (
+            /* CNS Result Card */
+            <div className="bg-card rounded-2xl shadow-xl border border-border overflow-hidden">
+              <div
+                className={`px-8 py-6 text-white ${
+                  result.data.isValid ? 'bg-gradient-to-r from-emerald-600 to-teal-600' : 'bg-destructive'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-2xl font-bold">Validação de CNS</h3>
+                    <p className="text-teal-50 font-mono tracking-wider break-words">{result.data.cnsFormatted}</p>
+                  </div>
+                  <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+                    {result.data.isValid ? (
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-8">
+                <div className="flex flex-col gap-6">
+                  <div className="flex items-start gap-4 p-4 bg-muted/30 rounded-xl">
+                    <div
+                      className={`mt-1 p-2 rounded-lg ${
+                        result.data.isValid ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400'
+                      }`}
+                    >
+                      {result.data.isValid ? (
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                      ) : (
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                      )}
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-foreground">{result.data.isValid ? 'CNS Válido' : 'CNS Inválido'}</h4>
+                      <p className="text-muted-foreground text-sm leading-relaxed">{result.data.message}</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 border border-border rounded-xl">
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Tipo</span>
+                      <span className="text-foreground font-bold text-sm capitalize">{result.data.type}</span>
+                    </div>
+                    <div className="p-4 border border-border rounded-xl">
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">CPF (quando possível)</span>
+                      <span className={`${result.data.hasCpf ? 'text-emerald-600' : 'text-muted-foreground'} font-bold text-sm`}>
+                        {result.data.hasCpf ? (result.data.cpfFormatted || result.data.cpf || '-') : 'Não detectado'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           ) : null}
         </div>
       )}
@@ -499,6 +588,12 @@ export function UnifiedSearch() {
             className="px-4 py-2 bg-card hover:bg-muted/50 text-muted-foreground border border-border rounded-xl text-xs font-bold transition-all hover:shadow-sm"
           >
             CPF Exemplo
+          </button>
+          <button
+            onClick={() => setInputValue(formatInput('279802393660003'))}
+            className="px-4 py-2 bg-card hover:bg-muted/50 text-muted-foreground border border-border rounded-xl text-xs font-bold transition-all hover:shadow-sm"
+          >
+            CNS Exemplo
           </button>
         </div>
       </div>

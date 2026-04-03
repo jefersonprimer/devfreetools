@@ -22,6 +22,7 @@ const sidebarItems = [
     { name: "CNPJ", href: "/docs/cnpj", icon: Building2 },
     { name: "CPF", href: "/docs/cpf", icon: UserRound },
     { name: "Certidão de Nascimento", href: "/docs/certidao-nascimento", icon: FileText },
+    { name: "CNS", href: "/docs/cns", icon: UserRound },
     { name: "Encurtador de Links", href: "/docs/links", icon: LinkIcon },
     { name: "Uso e Chaves", href: "/docs/uso-e-chaves", icon: BarChart3 },
   ]},
