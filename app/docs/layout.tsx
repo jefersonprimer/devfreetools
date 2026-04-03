@@ -10,7 +10,8 @@ import {
   UserRound, 
   FileText, 
   Link as LinkIcon, 
-  BarChart3 
+  BarChart3,
+  MapPin 
 } from "lucide-react";
 
 const sidebarItems = [
@@ -21,6 +22,7 @@ const sidebarItems = [
   { group: "Endpoints", items: [
     { name: "CNPJ", href: "/docs/cnpj", icon: Building2 },
     { name: "CPF", href: "/docs/cpf", icon: UserRound },
+    { name: "CEP", href: "/docs/cep", icon: MapPin },
     { name: "Certidão de Nascimento", href: "/docs/certidao-nascimento", icon: FileText },
     { name: "CNS", href: "/docs/cns", icon: UserRound },
     { name: "Encurtador de Links", href: "/docs/links", icon: LinkIcon },

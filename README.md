@@ -20,6 +20,32 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Enderecos com ViaCEP
+
+Agora o projeto possui API e UI para gerar/consultar enderecos brasileiros consumindo o ViaCEP.
+
+### Endpoints
+
+- `GET /api/v1/cep/{cep}`
+  - Consulta um CEP especifico no ViaCEP.
+- `GET /api/v1/generate/address`
+  - Gera um ou mais enderecos reais via ViaCEP.
+  - Query params opcionais:
+    - `count` (1-50)
+    - `uf` (ex: `SP`)
+    - `cidade` (ex: `Sao Paulo`)
+    - `seed` (deterministico)
+
+### Exemplos
+
+```bash
+curl "http://localhost:3000/api/v1/cep/01310100"
+```
+
+```bash
+curl "http://localhost:3000/api/v1/generate/address?count=3&uf=SP&cidade=Sao%20Paulo&seed=123"
+```
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
