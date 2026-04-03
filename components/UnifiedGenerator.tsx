@@ -86,13 +86,13 @@ export function UnifiedGenerator() {
   return (
     <div className="w-full max-w-2xl mx-auto">
       {/* Tabs */}
-      <div className="flex p-1 bg-gray-100 rounded-2xl mb-6 w-fit mx-auto sm:mx-0">
+      <div className="flex p-1 bg-muted rounded-2xl mb-6 w-fit mx-auto sm:mx-0">
         <button
           onClick={() => { setActiveTab('docs'); setGenerated(null); setError(null); }}
           className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${
             activeTab === 'docs' 
-              ? 'bg-white text-gray-900 shadow-sm' 
-              : 'text-gray-500 hover:text-gray-700'
+              ? 'bg-card text-foreground shadow-sm' 
+              : 'text-muted-foreground hover:text-foreground'
           }`}
         >
           Documentos
@@ -101,33 +101,33 @@ export function UnifiedGenerator() {
           onClick={() => { setActiveTab('links'); setGenerated(null); setError(null); }}
           className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${
             activeTab === 'links' 
-              ? 'bg-white text-gray-900 shadow-sm' 
-              : 'text-gray-500 hover:text-gray-700'
+              ? 'bg-card text-foreground shadow-sm' 
+              : 'text-muted-foreground hover:text-foreground'
           }`}
         >
           Encurtador
         </button>
       </div>
 
-      <div className="bg-white rounded-3xl shadow-xl shadow-blue-500/5 border border-gray-100 p-8">
+      <div className="bg-card rounded-3xl shadow-xl border border-border p-8">
         {activeTab === 'docs' ? (
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
             <div className="text-center md:text-left">
-              <h3 className="text-xl font-bold text-gray-900">Gerador de Documentos</h3>
-              <p className="text-gray-500 text-sm">Gere CPF ou CNPJ válidos para testes.</p>
+              <h3 className="text-xl font-bold text-foreground">Gerador de Documentos</h3>
+              <p className="text-muted-foreground text-sm">Gere CPF ou CNPJ válidos para testes.</p>
             </div>
             <div className="flex gap-3">
               <button
                 onClick={() => generateDoc('cpf')}
                 disabled={loading}
-                className="px-6 py-2.5 bg-purple-50 text-purple-700 font-bold rounded-xl hover:bg-purple-100 transition-all border border-purple-100"
+                className="px-6 py-2.5 bg-purple-500/10 text-purple-600 dark:text-purple-400 font-bold rounded-xl hover:bg-purple-500/20 transition-all border border-purple-500/20"
               >
                 Gerar CPF
               </button>
               <button
                 onClick={() => generateDoc('cnpj')}
                 disabled={loading}
-                className="px-6 py-2.5 bg-blue-50 text-blue-700 font-bold rounded-xl hover:bg-blue-100 transition-all border border-blue-100"
+                className="px-6 py-2.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold rounded-xl hover:bg-blue-500/20 transition-all border border-blue-500/20"
               >
                 Gerar CNPJ
               </button>
@@ -136,8 +136,8 @@ export function UnifiedGenerator() {
         ) : (
           <div className="mb-8">
             <div className="text-center md:text-left mb-6">
-              <h3 className="text-xl font-bold text-gray-900">Encurtador de Links</h3>
-              <p className="text-gray-500 text-sm">Transforme URLs longas em links curtos e rastreáveis.</p>
+              <h3 className="text-xl font-bold text-foreground">Encurtador de Links</h3>
+              <p className="text-muted-foreground text-sm">Transforme URLs longas em links curtos e rastreáveis.</p>
             </div>
             <form onSubmit={shortenLink} className="flex flex-col sm:flex-row gap-3">
               <input
@@ -145,25 +145,25 @@ export function UnifiedGenerator() {
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="Cole sua URL longa aqui..."
-                className="flex-1 px-5 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                className="flex-1 px-5 py-3 bg-muted/50 border border-border rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm text-foreground"
                 required
               />
               <button
                 type="submit"
                 disabled={loading || !url.trim()}
-                className="px-8 py-3 bg-gray-900 text-white font-bold rounded-2xl hover:bg-gray-800 transition-all disabled:opacity-50"
+                className="px-8 py-3 bg-foreground text-background font-bold rounded-2xl hover:opacity-90 transition-all disabled:opacity-50"
               >
                 {loading ? '...' : 'Encurtar'}
               </button>
             </form>
             {error && (
-              <p className="text-red-500 text-xs mt-3 font-medium flex items-center gap-1">
+              <p className="text-destructive text-xs mt-3 font-medium flex items-center gap-1">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                 </svg>
                 {error}
                 {error.includes('login') && (
-                  <a href="/login" className="underline hover:text-red-600">Entrar agora</a>
+                  <a href="/login" className="underline hover:text-destructive/80">Entrar agora</a>
                 )}
               </p>
             )}
@@ -172,7 +172,7 @@ export function UnifiedGenerator() {
 
         {loading && activeTab === 'docs' ? (
           <div className="flex justify-center py-12">
-            <div className="flex items-center gap-3 text-gray-400">
+            <div className="flex items-center gap-3 text-muted-foreground">
               <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
@@ -181,21 +181,21 @@ export function UnifiedGenerator() {
             </div>
           </div>
         ) : generated ? (
-          <div className="bg-linear-to-r from-gray-50 to-white rounded-2xl p-6 border border-gray-100 animate-in fade-in zoom-in-95 duration-300">
+          <div className="bg-muted/30 rounded-2xl p-6 border border-border animate-in fade-in zoom-in-95 duration-300">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex-1 min-w-0 text-center sm:text-left">
                 <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md mb-2 inline-block ${
-                  generated.type === 'CPF' ? 'bg-purple-100 text-purple-600' : 
-                  generated.type === 'CNPJ' ? 'bg-blue-100 text-blue-600' :
-                  'bg-green-100 text-green-600'
+                  generated.type === 'CPF' ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400' : 
+                  generated.type === 'CNPJ' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' :
+                  'bg-green-500/10 text-green-600 dark:text-green-400'
                 }`}>
                   {generated.type === 'LINK' ? 'Link Curto Gerado' : `${generated.type} Válido`}
                 </span>
-                <div className="text-2xl sm:text-3xl font-mono font-bold text-gray-900 tracking-tighter truncate">
+                <div className="text-2xl sm:text-3xl font-mono font-bold text-foreground tracking-tighter truncate">
                   {generated.formatted}
                 </div>
                 {generated.originalUrl && (
-                  <p className="text-xs text-gray-400 mt-1 truncate max-w-[250px]">
+                  <p className="text-[10px] text-muted-foreground mt-1 truncate max-w-[250px]">
                     Para: {generated.originalUrl}
                   </p>
                 )}
@@ -205,8 +205,8 @@ export function UnifiedGenerator() {
                   onClick={copyToClipboard}
                   className={`flex-1 sm:flex-none px-6 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${
                     copied 
-                      ? 'bg-green-500 text-white' 
-                      : 'bg-gray-900 text-white hover:bg-gray-800'
+                      ? 'bg-green-600 text-white' 
+                      : 'bg-primary text-primary-foreground hover:opacity-90'
                   }`}
                 >
                   {copied ? 'Copiado!' : 'Copiar'}
@@ -214,7 +214,7 @@ export function UnifiedGenerator() {
                 {generated.type !== 'LINK' && (
                   <button
                     onClick={() => generateDoc(generated.type.toLowerCase() as 'cpf' | 'cnpj')}
-                    className="p-3 bg-white border border-gray-200 text-gray-400 rounded-xl hover:text-gray-600 hover:border-gray-300 transition-all"
+                    className="p-3 bg-card border border-border text-muted-foreground rounded-xl hover:text-foreground hover:border-primary transition-all"
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -225,7 +225,7 @@ export function UnifiedGenerator() {
             </div>
           </div>
         ) : (
-          <div className="py-12 border border-dashed border-gray-100 rounded-2xl flex flex-col items-center justify-center text-gray-300">
+          <div className="py-12 border border-dashed border-border rounded-2xl flex flex-col items-center justify-center text-muted-foreground/30">
             <svg className="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
             </svg>

@@ -174,11 +174,11 @@ export function UnifiedSearch() {
         <div className="relative group">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
             {docType === 'CNPJ' ? (
-              <span className="text-xs font-bold bg-blue-100 text-blue-600 px-2 py-1 rounded">CNPJ</span>
+              <span className="text-xs font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-2 py-1 rounded">CNPJ</span>
             ) : docType === 'CPF' ? (
-              <span className="text-xs font-bold bg-purple-100 text-purple-600 px-2 py-1 rounded">CPF</span>
+              <span className="text-xs font-bold bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 px-2 py-1 rounded">CPF</span>
             ) : (
-              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             )}
@@ -188,7 +188,7 @@ export function UnifiedSearch() {
             value={inputValue}
             onChange={handleInputChange}
             placeholder="Digite CPF ou CNPJ para consultar"
-            className="w-full pl-16 pr-32 py-5 text-lg border-2 border-gray-100 rounded-2xl shadow-sm focus:border-blue-500 text-black focus:ring-4 focus:ring-blue-500/10 outline-none transition-all bg-white"
+            className="w-full pl-16 pr-32 py-5 text-lg border-2 border-border rounded-2xl shadow-sm focus:border-primary text-foreground focus:ring-4 focus:ring-primary/10 outline-none transition-all bg-card"
             disabled={loading}
           />
           <button
@@ -210,12 +210,12 @@ export function UnifiedSearch() {
 
       {/* Error Message */}
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl animate-in fade-in slide-in-from-top-2 duration-300">
+        <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-xl animate-in fade-in slide-in-from-top-2 duration-300">
           <div className="flex items-center">
-            <svg className="w-5 h-5 text-red-500 mr-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-destructive mr-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span className="text-red-700 font-medium">{error}</span>
+            <span className="text-destructive font-medium">{error}</span>
           </div>
         </div>
       )}
@@ -225,7 +225,7 @@ export function UnifiedSearch() {
         <div className="animate-in fade-in zoom-in-95 duration-500">
           {isCnpjData(result.data) && result.metadata ? (
             /* CNPJ Result Card */
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+            <div className="bg-card rounded-2xl shadow-xl border border-border overflow-hidden">
               {/* Header */}
               <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-6">
                 <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
@@ -253,45 +253,45 @@ export function UnifiedSearch() {
                   {/* Dados da Empresa */}
                   <div className="space-y-6">
                     <div>
-                      <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center">
-                        <svg className="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center">
+                        <svg className="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                         </svg>
                         Dados da Empresa
                       </h4>
                       <div className="space-y-4">
                         <div className="group">
-                          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Atividade Principal</span>
-                          <p className="text-gray-900 font-semibold text-sm mt-0.5">
+                          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Atividade Principal</span>
+                          <p className="text-foreground font-semibold text-sm mt-0.5">
                             {result.data.mainActivityCode && (
-                              <span className="text-blue-600 font-mono text-xs mr-2 bg-blue-50 px-1.5 py-0.5 rounded">{result.data.mainActivityCode}</span>
+                              <span className="text-primary font-mono text-xs mr-2 bg-primary/10 px-1.5 py-0.5 rounded">{result.data.mainActivityCode}</span>
                             )}
                             {result.data.mainActivity}
                           </p>
                         </div>
                         {result.data.foundedAt && (
                           <div className="group">
-                            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Data de Abertura</span>
-                            <p className="text-gray-900 font-semibold text-sm mt-0.5">{formatDate(result.data.foundedAt)}</p>
+                            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Data de Abertura</span>
+                            <p className="text-foreground font-semibold text-sm mt-0.5">{formatDate(result.data.foundedAt)}</p>
                           </div>
                         )}
                         {result.data.legalNature && (
                           <div className="group">
-                            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Natureza Jurídica</span>
-                            <p className="text-gray-900 font-semibold text-sm mt-0.5">{result.data.legalNature}</p>
+                            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Natureza Jurídica</span>
+                            <p className="text-foreground font-semibold text-sm mt-0.5">{result.data.legalNature}</p>
                           </div>
                         )}
                         <div className="flex gap-4">
                           {result.data.capitalSocial && (
                             <div className="group flex-1">
-                              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Capital Social</span>
-                              <p className="text-gray-900 font-semibold text-sm mt-0.5">{formatCurrency(result.data.capitalSocial)}</p>
+                              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Capital Social</span>
+                              <p className="text-foreground font-semibold text-sm mt-0.5">{formatCurrency(result.data.capitalSocial)}</p>
                             </div>
                           )}
                           {result.data.companySize && (
                             <div className="group flex-1">
-                              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Porte</span>
-                              <p className="text-gray-900 font-semibold text-sm mt-0.5">{result.data.companySize}</p>
+                              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Porte</span>
+                              <p className="text-foreground font-semibold text-sm mt-0.5">{result.data.companySize}</p>
                             </div>
                           )}
                         </div>
@@ -302,8 +302,8 @@ export function UnifiedSearch() {
                   {/* Localização e Contato */}
                   <div className="space-y-6">
                     <div>
-                      <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center">
-                        <svg className="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center">
+                        <svg className="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
@@ -311,19 +311,19 @@ export function UnifiedSearch() {
                       </h4>
                       <div className="space-y-2">
                         {result.data.address.street && (
-                          <p className="text-gray-900 font-semibold text-sm">{result.data.address.street}</p>
+                          <p className="text-foreground font-semibold text-sm">{result.data.address.street}</p>
                         )}
                         {result.data.address.complement && (
-                          <p className="text-gray-600 text-sm">{result.data.address.complement}</p>
+                          <p className="text-muted-foreground text-sm">{result.data.address.complement}</p>
                         )}
                         {result.data.address.neighborhood && (
-                          <p className="text-gray-600 text-sm">{result.data.address.neighborhood}</p>
+                          <p className="text-muted-foreground text-sm">{result.data.address.neighborhood}</p>
                         )}
-                        <p className="text-gray-900 font-semibold text-sm">
+                        <p className="text-foreground font-semibold text-sm">
                           {result.data.address.city}{result.data.address.state ? ` - ${result.data.address.state}` : ''}
                         </p>
                         {result.data.address.zipCode && (
-                          <p className="text-gray-500 text-sm font-mono">CEP: {formatCep(result.data.address.zipCode)}</p>
+                          <p className="text-muted-foreground text-sm font-mono text-[10px]">CEP: {formatCep(result.data.address.zipCode)}</p>
                         )}
                       </div>
                     </div>
@@ -331,22 +331,22 @@ export function UnifiedSearch() {
                     {/* Contato */}
                     {result.data.contact && (result.data.contact.phones.length > 0 || result.data.contact.email) && (
                       <div>
-                        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center">
-                          <svg className="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center">
+                          <svg className="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                           </svg>
                           Contato
                         </h4>
                         <div className="space-y-2">
                           {result.data.contact.phones.map((phone, i) => (
-                            <p key={i} className="text-gray-900 font-semibold text-sm flex items-center">
-                              <span className="text-gray-400 text-xs mr-2">📞</span> {phone}
+                            <p key={i} className="text-foreground font-semibold text-sm flex items-center">
+                              <span className="text-muted-foreground text-xs mr-2">📞</span> {phone}
                             </p>
                           ))}
                           {result.data.contact.email && (
-                            <p className="text-gray-900 font-semibold text-sm flex items-center">
-                              <span className="text-gray-400 text-xs mr-2">✉️</span>
-                              <a href={`mailto:${result.data.contact.email}`} className="text-blue-600 hover:underline">
+                            <p className="text-foreground font-semibold text-sm flex items-center">
+                              <span className="text-muted-foreground text-xs mr-2">✉️</span>
+                              <a href={`mailto:${result.data.contact.email}`} className="text-primary hover:underline">
                                 {result.data.contact.email}
                               </a>
                             </p>
@@ -359,27 +359,27 @@ export function UnifiedSearch() {
 
                 {/* Sócios */}
                 {result.data.partners && result.data.partners.length > 0 && (
-                  <div className="mt-8 pt-6 border-t border-gray-100">
-                    <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center">
-                      <svg className="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="mt-8 pt-6 border-t border-border">
+                    <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4 flex items-center">
+                      <svg className="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                       </svg>
                       Quadro Societário ({result.data.partners.length})
                     </h4>
                     <div className="space-y-3">
                       {result.data.partners.map((partner, i) => (
-                        <div key={i} className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
+                        <div key={i} className="flex items-start gap-3 p-3 bg-muted/50 rounded-xl">
                           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center shrink-0 mt-0.5">
                             <span className="text-white text-xs font-bold">{partner.name.charAt(0)}</span>
                           </div>
                           <div className="min-w-0 flex-1">
-                            <p className="text-gray-900 font-semibold text-sm truncate">{partner.name}</p>
+                            <p className="text-foreground font-semibold text-sm truncate">{partner.name}</p>
                             <div className="flex flex-wrap gap-2 mt-1">
                               {partner.role && (
-                                <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">{partner.role.trim()}</span>
+                                <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">{partner.role.trim()}</span>
                               )}
                               {partner.entryDate && (
-                                <span className="text-xs text-gray-400">Desde {formatDate(partner.entryDate)}</span>
+                                <span className="text-[10px] text-muted-foreground">Desde {formatDate(partner.entryDate)}</span>
                               )}
                             </div>
                           </div>
@@ -390,14 +390,14 @@ export function UnifiedSearch() {
                 )}
 
                 {/* Metadata footer */}
-                <div className="mt-8 pt-6 border-t border-gray-100 flex flex-wrap gap-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                  <div className="flex items-center bg-gray-50 px-3 py-1.5 rounded-lg">
+                <div className="mt-8 pt-6 border-t border-border flex flex-wrap gap-4 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                  <div className="flex items-center bg-muted/50 px-3 py-1.5 rounded-lg">
                     <svg className="w-3.5 h-3.5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     Consultada às {new Date(result.metadata.consultedAt).toLocaleTimeString('pt-BR')}
                   </div>
-                  <div className="flex items-center bg-gray-50 px-3 py-1.5 rounded-lg">
+                  <div className="flex items-center bg-muted/50 px-3 py-1.5 rounded-lg">
                     {result.metadata.cacheHit ? (
                       <span className="text-green-600 flex items-center">
                         <svg className="w-3.5 h-3.5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -406,7 +406,7 @@ export function UnifiedSearch() {
                         Dados em Cache
                       </span>
                     ) : (
-                      <span className="text-blue-600 flex items-center">
+                      <span className="text-primary flex items-center">
                         <svg className="w-3.5 h-3.5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
@@ -419,8 +419,8 @@ export function UnifiedSearch() {
             </div>
           ) : isCpfData(result.data) ? (
             /* CPF Result Card */
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-              <div className={`px-8 py-6 text-white ${result.data.isValid ? 'bg-gradient-to-r from-purple-600 to-pink-600' : 'bg-red-600'}`}>
+            <div className="bg-card rounded-2xl shadow-xl border border-border overflow-hidden">
+              <div className={`px-8 py-6 text-white ${result.data.isValid ? 'bg-gradient-to-r from-purple-600 to-pink-600' : 'bg-destructive'}`}>
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-2xl font-bold">Validação de CPF</h3>
@@ -441,8 +441,8 @@ export function UnifiedSearch() {
               </div>
               <div className="p-8">
                 <div className="flex flex-col gap-6">
-                  <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
-                    <div className={`mt-1 p-2 rounded-lg ${result.data.isSmartValid ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'}`}>
+                  <div className="flex items-start gap-4 p-4 bg-muted/30 rounded-xl">
+                    <div className={`mt-1 p-2 rounded-lg ${result.data.isSmartValid ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400'}`}>
                       {result.data.isSmartValid ? (
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -454,18 +454,18 @@ export function UnifiedSearch() {
                       )}
                     </div>
                     <div>
-                      <h4 className="font-bold text-gray-900">{result.data.isValid ? 'CPF Válido' : 'CPF Inválido'}</h4>
-                      <p className="text-gray-600 text-sm leading-relaxed">{result.data.message}</p>
+                      <h4 className="font-bold text-foreground">{result.data.isValid ? 'CPF Válido' : 'CPF Inválido'}</h4>
+                      <p className="text-muted-foreground text-sm leading-relaxed">{result.data.message}</p>
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 border border-gray-100 rounded-xl">
-                      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Algoritmo</span>
+                    <div className="p-4 border border-border rounded-xl">
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Algoritmo</span>
                       <span className="text-green-600 font-bold text-sm">✓ Verificado</span>
                     </div>
-                    <div className="p-4 border border-gray-100 rounded-xl">
-                      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Heurística</span>
+                    <div className="p-4 border border-border rounded-xl">
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Heurística</span>
                       <span className={`${result.data.isSmartValid ? 'text-green-600' : 'text-yellow-600'} font-bold text-sm`}>
                         {result.data.isSmartValid ? '✓ Confiável' : '⚠ Suspeito'}
                       </span>
@@ -480,23 +480,23 @@ export function UnifiedSearch() {
 
       {/* Demo Docs */}
       <div className="mt-12 text-center">
-        <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Exemplos Rápidos</p>
+        <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4">Exemplos Rápidos</p>
         <div className="flex flex-wrap justify-center gap-3">
           <button
             onClick={() => setInputValue(formatInput('11222333000181'))}
-            className="px-4 py-2 bg-white hover:bg-gray-50 text-gray-600 border border-gray-200 rounded-xl text-xs font-bold transition-all hover:shadow-sm"
+            className="px-4 py-2 bg-card hover:bg-muted/50 text-muted-foreground border border-border rounded-xl text-xs font-bold transition-all hover:shadow-sm"
           >
             CNPJ Exemplo
           </button>
           <button
             onClick={() => setInputValue(formatInput('11444777000161'))}
-            className="px-4 py-2 bg-white hover:bg-gray-50 text-gray-600 border border-gray-200 rounded-xl text-xs font-bold transition-all hover:shadow-sm"
+            className="px-4 py-2 bg-card hover:bg-muted/50 text-muted-foreground border border-border rounded-xl text-xs font-bold transition-all hover:shadow-sm"
           >
             Empresa Teste
           </button>
           <button
             onClick={() => setInputValue(formatInput('12345678909'))}
-            className="px-4 py-2 bg-white hover:bg-gray-50 text-gray-600 border border-gray-200 rounded-xl text-xs font-bold transition-all hover:shadow-sm"
+            className="px-4 py-2 bg-card hover:bg-muted/50 text-muted-foreground border border-border rounded-xl text-xs font-bold transition-all hover:shadow-sm"
           >
             CPF Exemplo
           </button>

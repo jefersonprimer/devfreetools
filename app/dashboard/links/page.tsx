@@ -101,7 +101,7 @@ export default function LinksPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
+    <div className="w-full max-w-5xl mx-auto space-y-8 overflow-hidden lg:overflow-visible">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
