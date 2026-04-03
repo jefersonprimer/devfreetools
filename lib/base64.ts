@@ -7,6 +7,7 @@ export interface Base64Result {
   success: boolean;
   output?: string;
   error?: string;
+  variant?: 'standard' | 'base64url';
 }
 
 /**
