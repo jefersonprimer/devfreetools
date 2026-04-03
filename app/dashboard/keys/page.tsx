@@ -104,7 +104,7 @@ export default function KeysPage() {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-8 overflow-hidden lg:overflow-visible">
+    <div className="w-full space-y-8 overflow-hidden lg:overflow-visible">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

@@ -52,7 +52,7 @@ export default function DashboardPage() {
   });
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-8 overflow-hidden lg:overflow-visible">
+    <div className="w-full space-y-8 overflow-hidden lg:overflow-visible">
       {/* Welcome */}
       <div>
         <h1 className="text-3xl font-bold text-white tracking-tight">

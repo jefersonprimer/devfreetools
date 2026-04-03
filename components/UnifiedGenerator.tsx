@@ -5,7 +5,8 @@ import {
   Copy,
   RefreshCcw,
   Check,
-  ArrowRight
+  ArrowRight,
+  ArrowLeftRight
 } from 'lucide-react';
 
 interface GeneratedDoc {
@@ -23,7 +24,7 @@ interface GeneratedDoc {
   addressData?: any[];
 }
 
-type ToolType = 'link' | 'cpf' | 'cnpj' | 'cns' | 'certidao-nascimento' | 'cep-endereco';
+type ToolType = 'link' | 'cpf' | 'cnpj' | 'cns' | 'certidao-nascimento' | 'cep-endereco' | 'base64';
 
 export function UnifiedGenerator() {
   const [selectedTool, setSelectedTool] = useState<ToolType>('cpf');
@@ -38,6 +39,9 @@ export function UnifiedGenerator() {
   const [addressCidade, setAddressCidade] = useState('');
   const [addressCount, setAddressCount] = useState(1);
   const [addressSeed, setAddressSeed] = useState('');
+  const [base64Input, setBase64Input] = useState('');
+  const [base64Mode, setBase64Mode] = useState<'encode' | 'decode' | 'auto'>('encode');
+  const [base64Variant, setBase64Variant] = useState<'standard' | 'base64url'>('standard');
 
   const tools = [
     { id: 'cpf', label: 'Gerador de CPF' },
@@ -45,6 +49,7 @@ export function UnifiedGenerator() {
     { id: 'cns', label: 'Gerador de CNS' },
     { id: 'cep-endereco', label: 'Gerador de Endereço (CEP)' },
     { id: 'certidao-nascimento', label: 'Certidão de Nascimento' },
+    { id: 'base64', label: 'Base64 Encode/Decode' },
     { id: 'link', label: 'Encurtador de Links' },
   ] as const;
 
@@ -55,6 +60,8 @@ export function UnifiedGenerator() {
       generateCnsDoc(cnsType);
     } else if (selectedTool === 'cep-endereco') {
       generateAddressDoc();
+    } else if (selectedTool === 'base64') {
+      processBase64();
     } else {
       generateDoc(selectedTool, selectedTool === 'certidao-nascimento' ? certidaoFormat : undefined);
     }
@@ -207,6 +214,38 @@ export function UnifiedGenerator() {
     }
   };
 
+  const processBase64 = async () => {
+    if (!base64Input.trim()) return;
+    setLoading(true);
+    setCopied(false);
+    setError(null);
+    try {
+      const endpoint = base64Mode === 'encode' ? '/api/v1/base64/encode' : '/api/v1/base64/decode';
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          input: base64Input,
+          variant: base64Variant,
+        }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setGenerated({
+          type: 'LINK',
+          value: data.data.output,
+          formatted: data.data.output,
+        });
+      } else {
+        setError(data.message || data.error || 'Falha ao processar Base64');
+      }
+    } catch (error) {
+      setError('Erro de conexão');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const copyToClipboard = () => {
     if (!generated) return;
     navigator.clipboard.writeText(generated.value);
@@ -344,6 +383,8 @@ export function UnifiedGenerator() {
               <p className="text-muted-foreground text-sm font-medium mt-1">
                 {selectedTool === 'link'
                   ? 'Transforme URLs longas em links curtos rastreáveis.'
+                  : selectedTool === 'base64'
+                  ? 'Codifique e decodifique textos em Base64 com suporte a UTF-8 e base64url.'
                   : 'Gere dados sintéticos válidos para seus ambientes de desenvolvimento.'}
               </p>
             </header>
@@ -438,14 +479,59 @@ export function UnifiedGenerator() {
                     </div>
                   )}
 
+                  {selectedTool === 'base64' && (
+                    <div className="space-y-4">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <div className="flex items-center gap-2 bg-muted/30 p-2 rounded-2xl border border-border/50">
+                          {(['encode', 'decode', 'auto'] as const).map((m) => (
+                            <button
+                              key={m}
+                              onClick={() => setBase64Mode(m)}
+                              className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${base64Mode === m ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                                }`}
+                            >
+                              {m === 'encode' ? 'CODIFICAR' : m === 'decode' ? 'DECODIFICAR' : 'AUTO'}
+                            </button>
+                          ))}
+                        </div>
+                        {base64Mode !== 'auto' && (
+                          <div className="flex items-center gap-2 bg-muted/30 p-2 rounded-2xl border border-border/50">
+                            <button
+                              onClick={() => setBase64Variant('standard')}
+                              className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${base64Variant === 'standard' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                                }`}
+                            >
+                              STANDARD
+                            </button>
+                            <button
+                              onClick={() => setBase64Variant('base64url')}
+                              className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${base64Variant === 'base64url' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                                }`}
+                            >
+                              BASE64URL
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                      <textarea
+                        value={base64Input}
+                        onChange={(e) => setBase64Input(e.target.value)}
+                        placeholder={base64Mode === 'encode' ? 'Digite o texto para codificar...' : base64Mode === 'decode' ? 'Cole o Base64 para decodificar...' : 'Digite texto ou Base64 para converter...'}
+                        rows={6}
+                        className="w-full px-4 py-3 bg-muted/30 border border-border/50 rounded-xl text-sm font-semibold text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/10 resize-none"
+                      />
+                    </div>
+                  )}
+
                   <button
                     onClick={handleAction}
-                    disabled={loading}
+                    disabled={loading || (selectedTool === 'base64' && !base64Input.trim())}
                     className="w-full h-14 bg-foreground text-background font-black rounded-2xl hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 shadow-xl shadow-foreground/10 flex items-center justify-center gap-2"
                   >
                     {loading ? <RefreshCcw size={20} className="animate-spin" /> : (
                       <>
-                        <span>GERAR DADOS</span>
+                        <span>{selectedTool === 'base64' ? (base64Mode === 'encode' ? 'CODIFICAR' : base64Mode === 'decode' ? 'DECODIFICAR' : 'PROCESSAR') : 'GERAR DADOS'}</span>
+                        {selectedTool === 'base64' && <ArrowLeftRight size={18} />}
                       </>
                     )}
                   </button>
@@ -469,7 +555,7 @@ export function UnifiedGenerator() {
                       Resultado Gerado
                     </span>
                     <div className="flex items-center gap-2">
-                      {selectedTool !== 'link' && (
+                      {selectedTool !== 'link' && selectedTool !== 'base64' && (
                         <button
                           onClick={handleAction}
                           disabled={loading}

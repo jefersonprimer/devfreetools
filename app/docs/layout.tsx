@@ -3,15 +3,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Header } from "@/components/Header";
-import { 
-  BookOpen, 
-  Key, 
-  Building2, 
-  UserRound, 
-  FileText, 
-  Link as LinkIcon, 
+import {
+  BookOpen,
+  Key,
+  Building2,
+  UserRound,
+  FileText,
+  Link as LinkIcon,
   BarChart3,
-  MapPin 
+  MapPin,
+  Code2
 } from "lucide-react";
 
 const sidebarItems = [
@@ -25,6 +26,7 @@ const sidebarItems = [
     { name: "CEP", href: "/docs/cep", icon: MapPin },
     { name: "Certidão de Nascimento", href: "/docs/certidao-nascimento", icon: FileText },
     { name: "CNS", href: "/docs/cns", icon: UserRound },
+    { name: "Base64", href: "/docs/base64", icon: Code2 },
     { name: "Encurtador de Links", href: "/docs/links", icon: LinkIcon },
     { name: "Uso e Chaves", href: "/docs/uso-e-chaves", icon: BarChart3 },
   ]},

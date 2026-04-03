@@ -107,66 +107,68 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           }
         />
         
-        <div className="flex-1 flex transition-colors">
-          {/* Mobile sidebar overlay */}
-          {sidebarOpen && (
-            <div
-              className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm"
-              onClick={() => setSidebarOpen(false)}
-            />
-          )}
+        <div className="flex-1 flex flex-col transition-colors">
+          <div className="max-w-7xl mx-auto w-full flex flex-1 px-4 sm:px-6 lg:px-8 py-8 gap-8">
+            {/* Mobile sidebar overlay */}
+            {sidebarOpen && (
+              <div
+                className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm"
+                onClick={() => setSidebarOpen(false)}
+              />
+            )}
 
-          {/* Sidebar */}
-          <aside
-            className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-card border-r border-border flex flex-col transition-transform duration-300 lg:translate-x-0 ${
-              sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-            }`}
-          >
-            {/* Logo - Hidden in Sidebar because it's in the Header now, but keeping for mobile if needed, or removing */}
-            <div className="p-6 border-b border-border lg:hidden">
-              <a href="/" className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
-                  <span className="text-white font-bold text-sm">P</span>
-                </div>
-                <span className="text-lg font-bold text-foreground tracking-tight">Devfreetools</span>
-              </a>
-            </div>
-
-            {/* Navigation */}
-            <nav className="flex-1 p-4 space-y-1 lg:mt-4">
-              {navItems.map((item) => {
-                const isActive = pathname === item.href;
-                return (
-                  <a
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setSidebarOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                      isActive
-                        ? 'bg-primary/10 text-primary border border-primary/20'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                    }`}
-                  >
-                    {item.icon}
-                    {item.label}
-                  </a>
-                );
-              })}
-            </nav>
-
-            {/* Plan badge */}
-            <div className="p-4 border-t border-border">
-              <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-primary/10 rounded-xl p-4">
-                <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">Plano atual</p>
-                <p className="text-foreground font-bold text-sm mt-1 capitalize">{user?.plan || 'Free'}</p>
+            {/* Sidebar */}
+            <aside
+              className={`fixed lg:static inset-y-0 left-0 z-50 w-64 flex flex-col transition-transform duration-300 lg:translate-x-0 ${
+                sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+              }`}
+            >
+              {/* Logo - Hidden in Sidebar because it's in the Header now, but keeping for mobile if needed, or removing */}
+              <div className="p-6 border-b border-border lg:hidden">
+                <a href="/" className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
+                    <span className="text-white font-bold text-sm">P</span>
+                  </div>
+                  <span className="text-lg font-bold text-foreground tracking-tight">Devfreetools</span>
+                </a>
               </div>
-            </div>
-          </aside>
 
-          {/* Page content */}
-          <main className="flex-1 p-6 lg:p-8 bg-muted/20 transition-colors min-w-0">
-            {children}
-          </main>
+              {/* Navigation */}
+              <nav className="flex-1 space-y-1 lg:mt-4">
+                {navItems.map((item) => {
+                  const isActive = pathname === item.href;
+                  return (
+                    <a
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setSidebarOpen(false)}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                        isActive
+                          ? 'bg-primary/10 text-primary border border-primary/20'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                      }`}
+                    >
+                      {item.icon}
+                      {item.label}
+                    </a>
+                  );
+                })}
+              </nav>
+
+              {/* Plan badge */}
+              <div className="pt-4 border-t border-border">
+                <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-primary/10 rounded-xl p-4">
+                  <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">Plano atual</p>
+                  <p className="text-foreground font-bold text-sm mt-1 capitalize">{user?.plan || 'Free'}</p>
+                </div>
+              </div>
+            </aside>
+
+            {/* Page content */}
+            <main className="flex-1 min-w-0 transition-colors">
+              {children}
+            </main>
+          </div>
         </div>
       </div>
     </DashboardContext.Provider>
