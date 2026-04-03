@@ -44,18 +44,8 @@ export default function Home() {
       {/* Tools Section */}
       <section id="tools" className="py-24 bg-muted/30 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-black text-foreground mb-4 tracking-tight">
-              Sandbox para Desenvolvedores
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Gere dados sintéticos e encurte links para acelerar seus ciclos de teste e desenvolvimento.
-            </p>
-          </div>
 
-          <div className="max-w-3xl mx-auto">
             <UnifiedGenerator />
-          </div>
         </div>
       </section>
 

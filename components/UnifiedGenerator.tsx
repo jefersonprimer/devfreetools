@@ -1,6 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import { 
+  Copy, 
+  RefreshCcw, 
+  Check,
+  ChevronRight,
+  Sparkles,
+  ArrowRight
+} from 'lucide-react';
 
 interface GeneratedDoc {
   type: 'CPF' | 'CNPJ' | 'CERTIDAO_NASCIMENTO' | 'CNS' | 'LINK';
@@ -8,26 +16,45 @@ interface GeneratedDoc {
   value: string;
   formatted: string;
   originalUrl?: string;
-  // CNS metadata (apenas para exibição)
   cnsType?: string;
   hasCpf?: boolean;
   cpf?: string;
   cpfFormatted?: string;
   cnsGenerateType?: 'auto' | 'definitivo' | 'provisorio';
+  certidaoData?: any;
 }
 
+type ToolType = 'link' | 'cpf' | 'cnpj' | 'cns' | 'certidao-nascimento';
+
 export function UnifiedGenerator() {
-  const [activeTab, setActiveTab] = useState<'docs' | 'links'>('docs');
+  const [selectedTool, setSelectedTool] = useState<ToolType>('cpf');
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState<GeneratedDoc | null>(null);
   const [copied, setCopied] = useState(false);
   const [certidaoFormat, setCertidaoFormat] = useState<'text' | 'json' | 'compact'>('text');
-  
-  // Link Shortener state
+  const [cnsType, setCnsType] = useState<'definitivo' | 'provisorio' | 'auto'>('definitivo');
   const [url, setUrl] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  const generateDoc = async (type: 'cpf' | 'cnpj' | 'certidao-nascimento', format?: 'text' | 'json' | 'compact') => {
+  const tools = [
+    { id: 'cpf', label: 'Gerador de CPF' },
+    { id: 'cnpj', label: 'Gerador de CNPJ' },
+    { id: 'cns', label: 'Gerador de CNS' },
+    { id: 'certidao-nascimento', label: 'Certidão de Nascimento' },
+    { id: 'link', label: 'Encurtador de Links' },
+  ] as const;
+
+  const handleAction = () => {
+    if (selectedTool === 'link') {
+      shortenLink();
+    } else if (selectedTool === 'cns') {
+      generateCnsDoc(cnsType);
+    } else {
+      generateDoc(selectedTool, selectedTool === 'certidao-nascimento' ? certidaoFormat : undefined);
+    }
+  };
+
+  const generateDoc = async (type: Exclude<ToolType, 'link'>, format?: 'text' | 'json' | 'compact') => {
     setLoading(true);
     setCopied(false);
     setError(null);
@@ -38,48 +65,38 @@ export function UnifiedGenerator() {
           : `/api/v1/${type}/generate`
       );
       const data = await response.json();
-      
       const item = data.data[0];
 
       if (type === 'certidao-nascimento') {
         if (format === 'json') {
-          const jsonString = JSON.stringify(item, null, 2);
           setGenerated({
             type: 'CERTIDAO_NASCIMENTO',
             display: 'json',
-            value: jsonString,
-            formatted: item.formatted || item.value || jsonString,
+            value: JSON.stringify(item, null, 2),
+            formatted: item.formatted || item.value || JSON.stringify(item, null, 2),
           });
         } else if (format === 'compact') {
-          const value = `NUMERO DA CERTIDAO: ${item.numeroCertidao}\nCODIGO DA CERTIDAO: ${item.codigoCertidao}`;
-          setGenerated({
-            type: 'CERTIDAO_NASCIMENTO',
-            display: 'compact',
-            value,
-            formatted: value,
-          });
+          const value = `NUMERO: ${item.numeroCertidao}\nCODIGO: ${item.codigoCertidao}`;
+          setGenerated({ type: 'CERTIDAO_NASCIMENTO', display: 'compact', value, formatted: value });
         } else {
-          // format === 'text'
-          setGenerated({
-            type: 'CERTIDAO_NASCIMENTO',
-            display: 'text',
-            value: item.value,
+          setGenerated({ 
+            type: 'CERTIDAO_NASCIMENTO', 
+            display: 'text', 
+            value: item.value, 
             formatted: item.formatted,
+            certidaoData: item 
           });
         }
         return;
       }
 
-      // CPF / CNPJ
-      const generatedType = type === 'cpf' ? 'CPF' : 'CNPJ';
       setGenerated({
-        type: generatedType,
+        type: type === 'cpf' ? 'CPF' : 'CNPJ',
         display: 'text',
         value: type === 'cpf' ? item.cpf : item.cnpj,
         formatted: item.formatted,
       });
     } catch (error) {
-      console.error('Error generating document:', error);
       setError('Falha ao gerar documento');
     } finally {
       setLoading(false);
@@ -93,18 +110,8 @@ export function UnifiedGenerator() {
     try {
       const response = await fetch(`/api/v1/cns/generate?count=1&type=${encodeURIComponent(type)}`);
       const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.error || data.message || 'Falha ao gerar CNS');
-        return;
-      }
-
+      if (!response.ok) { setError(data.error || 'Erro'); return; }
       const item = data.data?.[0];
-      if (!item) {
-        setError('Falha ao gerar CNS');
-        return;
-      }
-
       setGenerated({
         type: 'CNS',
         display: 'text',
@@ -117,37 +124,26 @@ export function UnifiedGenerator() {
         cnsGenerateType: type,
       });
     } catch (error) {
-      console.error('Error generating CNS:', error);
       setError('Falha ao gerar CNS');
     } finally {
       setLoading(false);
     }
   };
 
-  const shortenLink = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const shortenLink = async () => {
     if (!url.trim()) return;
-    
     setLoading(true);
     setCopied(false);
     setError(null);
-    
     try {
       const response = await fetch('/api/v1/links/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: url.trim() }),
       });
-      
       const data = await response.json();
-      
       if (response.ok) {
-        setGenerated({
-          type: 'LINK',
-          value: data.data.shortUrl,
-          formatted: data.data.shortUrl,
-          originalUrl: data.data.originalUrl
-        });
+        setGenerated({ type: 'LINK', value: data.data.shortUrl, formatted: data.data.shortUrl, originalUrl: data.data.originalUrl });
         setUrl('');
       } else {
         setError(data.error === 'Unauthorized' ? 'Faça login para encurtar links' : data.error);
@@ -166,226 +162,292 @@ export function UnifiedGenerator() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  return (
-    <div className="w-full max-w-2xl mx-auto">
-      {/* Tabs */}
-      <div className="flex p-1 bg-muted rounded-2xl mb-6 w-fit mx-auto sm:mx-0">
-        <button
-          onClick={() => { setActiveTab('docs'); setGenerated(null); setError(null); }}
-          className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${
-            activeTab === 'docs' 
-              ? 'bg-card text-foreground shadow-sm' 
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          Documentos
-        </button>
-        <button
-          onClick={() => { setActiveTab('links'); setGenerated(null); setError(null); }}
-          className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${
-            activeTab === 'links' 
-              ? 'bg-card text-foreground shadow-sm' 
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          Encurtador
-        </button>
+  const renderCertidaoVisual = (data: any) => (
+    <div className="relative bg-[#fcfcfc] border-[#e5e5e5] border-2 shadow-inner p-8 sm:p-12 text-[#1a1a1a] font-serif overflow-hidden rounded-lg">
+      {/* Watermark/Background Decoration */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03] flex items-center justify-center">
+        <Sparkles size={400} />
       </div>
 
-      <div className="bg-card rounded-3xl shadow-xl border border-border p-8">
-        {activeTab === 'docs' ? (
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
-            <div className="text-center md:text-left">
-              <h3 className="text-xl font-bold text-foreground">Gerador de Documentos</h3>
-              <p className="text-muted-foreground text-sm">Gere dados sintéticos para testes: CPF, CNPJ, CNS e certidão.</p>
+      <div className="relative space-y-8">
+        <div className="text-center space-y-2 border-b-2 border-dashed border-[#ddd] pb-8">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-[0.1em] uppercase">República Federativa do Brasil</h1>
+          <h2 className="text-lg sm:text-xl font-medium uppercase tracking-wider text-[#444]">Registro Civil das Pessoas Naturais</h2>
+          <p className="text-sm font-bold mt-4 uppercase bg-[#f0f0f0] inline-block px-4 py-1 rounded">Certidão de Nascimento</p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 text-[11px] sm:text-xs">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-[10px] uppercase tracking-widest text-[#888] font-sans font-bold mb-1">Nome Registrado</label>
+              <p className="text-base sm:text-lg font-bold uppercase">{data.nomeRegistrado}</p>
             </div>
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              <button
-                onClick={() => generateDoc('cpf')}
-                disabled={loading}
-                className="px-6 py-2.5 bg-purple-500/10 text-purple-600 dark:text-purple-400 font-bold rounded-xl hover:bg-purple-500/20 transition-all border border-purple-500/20"
-              >
-                Gerar CPF
-              </button>
-              <button
-                onClick={() => generateDoc('cnpj')}
-                disabled={loading}
-                className="px-6 py-2.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold rounded-xl hover:bg-blue-500/20 transition-all border border-blue-500/20"
-              >
-                Gerar CNPJ
-              </button>
-              <button
-                onClick={() => generateCnsDoc('definitivo')}
-                disabled={loading}
-                className="px-6 py-2.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold rounded-xl hover:bg-emerald-500/20 transition-all border border-emerald-500/20"
-              >
-                Gerar CNS
-              </button>
-              <button
-                onClick={() => generateCnsDoc('provisorio')}
-                disabled={loading}
-                className="px-6 py-2.5 bg-teal-500/10 text-teal-600 dark:text-teal-400 font-bold rounded-xl hover:bg-teal-500/20 transition-all border border-teal-500/20 whitespace-nowrap"
-              >
-                Gerar CNS Provisório
-              </button>
-              <div className="flex items-center gap-3">
-                <select
-                  value={certidaoFormat}
-                  onChange={(e) => setCertidaoFormat(e.target.value as 'text' | 'json' | 'compact')}
-                  disabled={loading}
-                  className="px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                  aria-label="Formato da certidao"
-                >
-                  <option value="text">Texto</option>
-                  <option value="json">JSON</option>
-                  <option value="compact">Compacto</option>
-                </select>
-                <button
-                  onClick={() => generateDoc('certidao-nascimento', certidaoFormat)}
-                  disabled={loading}
-                  className="px-6 py-2.5 bg-red-500/10 text-red-600 dark:text-red-400 font-bold rounded-xl hover:bg-red-500/20 transition-all border border-red-500/20 whitespace-nowrap"
-                >
-                  Gerar Certidao
-                </button>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[10px] uppercase tracking-widest text-[#888] font-sans font-bold mb-1">Sexo</label>
+                <p className="font-bold uppercase">{data.sexo === 'M' ? 'Masculino' : 'Feminino'}</p>
+              </div>
+              <div>
+                <label className="block text-[10px] uppercase tracking-widest text-[#888] font-sans font-bold mb-1">Nascimento</label>
+                <p className="font-bold uppercase">{data.dataNascimento}</p>
               </div>
             </div>
-          </div>
-        ) : (
-          <div className="mb-8">
-            <div className="text-center md:text-left mb-6">
-              <h3 className="text-xl font-bold text-foreground">Encurtador de Links</h3>
-              <p className="text-muted-foreground text-sm">Transforme URLs longas em links curtos e rastreáveis.</p>
+
+            <div>
+              <label className="block text-[10px] uppercase tracking-widest text-[#888] font-sans font-bold mb-1">Local de Nascimento</label>
+              <p className="font-bold uppercase">{data.cidade} / {data.uf}</p>
             </div>
-            <form onSubmit={shortenLink} className="flex flex-col sm:flex-row gap-3">
-              <input
-                type="url"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder="Cole sua URL longa aqui..."
-                className="flex-1 px-5 py-3 bg-muted/50 border border-border rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm text-foreground"
-                required
-              />
+          </div>
+
+          <div className="space-y-4 bg-[#f8f8f8] p-4 rounded-xl border border-[#eee]">
+            <div className="grid grid-cols-3 gap-2">
+              <div>
+                <label className="block text-[8px] uppercase tracking-widest text-[#999] font-sans font-bold">Livro</label>
+                <p className="font-mono text-sm font-bold">{data.livro}</p>
+              </div>
+              <div>
+                <label className="block text-[8px] uppercase tracking-widest text-[#999] font-sans font-bold">Folha</label>
+                <p className="font-mono text-sm font-bold">{data.folha}</p>
+              </div>
+              <div>
+                <label className="block text-[8px] uppercase tracking-widest text-[#999] font-sans font-bold">Termo</label>
+                <p className="font-mono text-sm font-bold">{data.termo}</p>
+              </div>
+            </div>
+            <div>
+              <label className="block text-[8px] uppercase tracking-widest text-[#999] font-sans font-bold">Número da Certidão</label>
+              <p className="font-mono text-sm font-bold text-blue-600">{data.numeroCertidao}</p>
+            </div>
+            <div>
+              <label className="block text-[8px] uppercase tracking-widest text-[#999] font-sans font-bold">Data do Registro</label>
+              <p className="font-bold">{data.dataRegistro}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6 pt-6 border-t border-[#eee]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+            <div>
+              <label className="block text-[10px] uppercase tracking-widest text-[#888] font-sans font-bold mb-1">Filiação (Mãe)</label>
+              <p className="font-bold uppercase">{data.mae}</p>
+            </div>
+            <div>
+              <label className="block text-[10px] uppercase tracking-widest text-[#888] font-sans font-bold mb-1">Filiação (Pai)</label>
+              <p className="font-bold uppercase">{data.pai}</p>
+            </div>
+          </div>
+
+          <div className="pt-6">
+            <label className="block text-[10px] uppercase tracking-widest text-[#888] font-sans font-bold mb-1">Cartório e Oficial</label>
+            <p className="text-[11px] font-medium leading-relaxed uppercase">{data.cartorio}</p>
+            <p className="text-[11px] font-bold mt-1 uppercase italic">Oficial: {data.oficial}</p>
+          </div>
+        </div>
+
+        <div className="pt-10 flex flex-col items-center justify-center space-y-4 opacity-40 grayscale">
+          <div className="w-24 h-24 border-4 border-[#ddd] rounded-full flex items-center justify-center relative">
+             <div className="absolute inset-1 border-2 border-[#eee] rounded-full" />
+             <div className="text-[8px] font-bold text-center uppercase tracking-tighter px-2">Selo de<br/>Autenticidade</div>
+          </div>
+          <p className="text-[10px] font-mono tracking-widest">{data.codigoCertidao}</p>
+        </div>
+
+        <div className="pt-8 text-center">
+          <p className="text-[9px] text-[#999] font-sans italic">
+            Documento gerado automaticamente para fins de teste. Não possui valor jurídico.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="w-full max-w-6xl mx-auto">
+      <div className="bg-card rounded-[2rem] shadow-2xl border border-border/50 overflow-hidden flex flex-col md:flex-row min-h-[500px]">
+        {/* Sidebar */}
+        <aside className="w-full md:w-64 bg-muted/20 border-b md:border-b-0 md:border-r border-border/50 p-6 flex flex-col gap-1">
+          <div className="mb-6 px-2">
+            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Ferramentas</h3>
+          </div>
+          <nav className="flex md:flex-col gap-1 overflow-x-auto md:overflow-x-visible pb-2 md:pb-0 scrollbar-hide">
+            {tools.map((tool) => (
               <button
-                type="submit"
-                disabled={loading || !url.trim()}
-                className="px-8 py-3 bg-foreground text-background font-bold rounded-2xl hover:opacity-90 transition-all disabled:opacity-50"
+                key={tool.id}
+                onClick={() => { setSelectedTool(tool.id); setGenerated(null); setError(null); }}
+                className={`whitespace-nowrap text-left px-4 py-3 rounded-xl text-sm font-bold transition-all duration-200 ${
+                  selectedTool === tool.id 
+                    ? 'bg-foreground text-background shadow-lg shadow-foreground/5 scale-[1.02]' 
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                }`}
               >
-                {loading ? '...' : 'Encurtar'}
+                {tool.label}
               </button>
-            </form>
-            {error && (
-              <p className="text-destructive text-xs mt-3 font-medium flex items-center gap-1">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
-                {error}
-                {error.includes('login') && (
-                  <a href="/login" className="underline hover:text-destructive/80">Entrar agora</a>
-                )}
+            ))}
+          </nav>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 p-8 sm:p-12 flex flex-col">
+          <div className="flex-1 space-y-8">
+            <header>
+              <h2 className="text-2xl font-black text-foreground tracking-tight">
+                {tools.find(t => t.id === selectedTool)?.label}
+              </h2>
+              <p className="text-muted-foreground text-sm font-medium mt-1">
+                {selectedTool === 'link' 
+                  ? 'Transforme URLs longas em links curtos rastreáveis.' 
+                  : 'Gere dados sintéticos válidos para seus ambientes de desenvolvimento.'}
               </p>
-            )}
-          </div>
-        )}
+            </header>
 
-        {loading && activeTab === 'docs' ? (
-          <div className="flex justify-center py-12">
-            <div className="flex items-center gap-3 text-muted-foreground">
-              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-              </svg>
-              <span className="font-medium">Processando...</span>
-            </div>
-          </div>
-        ) : generated ? (
-          <div className="bg-muted/30 rounded-2xl p-6 border border-border animate-in fade-in zoom-in-95 duration-300">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex-1 min-w-0 text-center sm:text-left">
-                <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md mb-2 inline-block ${
-                  generated.type === 'CPF' ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400' : 
-                  generated.type === 'CNPJ' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' :
-                  generated.type === 'CERTIDAO_NASCIMENTO' ? 'bg-red-500/10 text-red-600 dark:text-red-400' :
-                  'bg-green-500/10 text-green-600 dark:text-green-400'
-                }`}>
-                  {generated.type === 'LINK'
-                    ? 'Link Curto Gerado'
-                    : generated.type === 'CERTIDAO_NASCIMENTO'
-                      ? 'Certidao de Nascimento Válida'
-                      : `${generated.type} Válido`}
-                </span>
-
-                {generated.type === 'CERTIDAO_NASCIMENTO' ? (
-                  generated.display === 'json' ? (
-                    <pre className="text-[10px] sm:text-xs font-mono font-bold text-foreground whitespace-pre-wrap break-words mt-2">
-                      {generated.value}
-                    </pre>
-                  ) : generated.display === 'compact' ? (
-                    <pre className="text-xs sm:text-sm font-mono font-bold text-foreground whitespace-pre-wrap break-words mt-2">
-                      {generated.formatted}
-                    </pre>
-                  ) : (
-                    <pre className="text-xs sm:text-sm font-mono font-bold text-foreground whitespace-pre-wrap break-words mt-2">
-                      {generated.formatted}
-                    </pre>
-                  )
-                ) : (
-                  <div className="text-2xl sm:text-3xl font-mono font-bold text-foreground tracking-tighter truncate">
-                    {generated.formatted}
+            <div className="space-y-6">
+              {selectedTool === 'link' ? (
+                <div className="space-y-4">
+                  <div className="relative group">
+                    <input
+                      type="url"
+                      value={url}
+                      onChange={(e) => setUrl(e.target.value)}
+                      placeholder="https://sua-url-longa.com/aqui"
+                      className="w-full px-6 py-4 bg-muted/30 border-2 border-transparent focus:border-foreground/10 rounded-2xl focus:outline-none transition-all text-sm font-semibold text-foreground placeholder:text-muted-foreground/40"
+                    />
                   </div>
-                )}
+                  <button
+                    onClick={handleAction}
+                    disabled={loading || !url.trim()}
+                    className="w-full h-14 bg-foreground text-background font-black rounded-2xl hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 shadow-xl shadow-foreground/10 flex items-center justify-center gap-2"
+                  >
+                    {loading ? <RefreshCcw size={20} className="animate-spin" /> : (
+                      <>
+                        <span>ENCURTAR LINK AGORA</span>
+                        <ArrowRight size={18} />
+                      </>
+                    )}
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {selectedTool === 'certidao-nascimento' && (
+                    <div className="flex items-center gap-4 bg-muted/30 p-2 rounded-2xl w-fit border border-border/50">
+                      {(['text', 'json', 'compact'] as const).map((fmt) => (
+                        <button
+                          key={fmt}
+                          onClick={() => setCertidaoFormat(fmt)}
+                          className={`px-5 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                            certidaoFormat === fmt ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                          }`}
+                        >
+                          {fmt}
+                        </button>
+                      ))}
+                    </div>
+                  )}
 
-                {generated.type === 'CNS' && (
-                  <div className="mt-2 text-xs sm:text-sm font-semibold text-muted-foreground space-y-1">
-                    <div>Tipo: {generated.cnsType || 'desconhecido'}</div>
-                    <div>
-                      CPF: {generated.hasCpf ? (generated.cpfFormatted || generated.cpf || '-') : 'Não detectado'}
+                  {selectedTool === 'cns' && (
+                    <div className="flex items-center gap-2 bg-muted/30 p-2 rounded-2xl w-fit border border-border/50">
+                      {(['definitivo', 'provisorio', 'auto'] as const).map((t) => (
+                        <button
+                          key={t}
+                          onClick={() => setCnsType(t)}
+                          className={`px-5 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                            cnsType === t ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                          }`}
+                        >
+                          {t}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  <button
+                    onClick={handleAction}
+                    disabled={loading}
+                    className="w-full h-14 bg-foreground text-background font-black rounded-2xl hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 shadow-xl shadow-foreground/10 flex items-center justify-center gap-2"
+                  >
+                    {loading ? <RefreshCcw size={20} className="animate-spin" /> : (
+                      <>
+                        <span>GERAR DADOS</span>
+                        <Sparkles size={18} />
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+
+              {error && (
+                <div className="p-4 bg-destructive/5 border border-destructive/10 rounded-2xl text-destructive text-xs font-bold uppercase tracking-wider flex items-center gap-2 animate-in slide-in-from-top-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-destructive animate-pulse" />
+                  {error}
+                </div>
+              )}
+            </div>
+
+            {/* Result Section */}
+            <div className="pt-8 border-t border-border/50">
+              {generated ? (
+                <div className="bg-muted/40 rounded-[2rem] p-6 sm:p-8 border border-border/30 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="flex items-center justify-between mb-6">
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground bg-foreground/5 px-3 py-1 rounded-full">
+                      Resultado Gerado
+                    </span>
+                    <div className="flex items-center gap-2">
+                      {selectedTool !== 'link' && (
+                        <button
+                          onClick={handleAction}
+                          disabled={loading}
+                          className="h-10 w-10 flex items-center justify-center bg-card border border-border/50 text-muted-foreground rounded-xl hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-50"
+                          title="Gerar outro"
+                        >
+                          <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />
+                        </button>
+                      )}
+                      <button
+                        onClick={copyToClipboard}
+                        className={`h-10 px-4 rounded-xl font-black transition-all flex items-center justify-center gap-2 ${
+                          copied 
+                            ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' 
+                            : 'bg-foreground text-background hover:scale-105 active:scale-95 shadow-lg shadow-foreground/10'
+                        }`}
+                      >
+                        {copied ? <Check size={14} /> : <Copy size={14} />}
+                        <span className="text-[10px] uppercase tracking-widest">{copied ? 'COPIADO' : 'COPIAR'}</span>
+                      </button>
                     </div>
                   </div>
-                )}
+                  
+                  <div className="space-y-4">
+                    {generated.type === 'CERTIDAO_NASCIMENTO' && generated.display === 'text' && generated.certidaoData ? (
+                      renderCertidaoVisual(generated.certidaoData)
+                    ) : generated.display === 'json' ? (
+                      <pre className="text-xs font-mono font-bold text-foreground bg-card/50 p-6 rounded-2xl border border-border/50 whitespace-pre-wrap break-all overflow-x-auto max-h-[300px] scrollbar-hide">
+                        {generated.value}
+                      </pre>
+                    ) : (
+                      <div className="text-2xl sm:text-4xl font-mono font-black text-foreground tracking-tighter break-all">
+                        {generated.formatted}
+                      </div>
+                    )}
 
-                {generated.originalUrl && (
-                  <p className="text-[10px] text-muted-foreground mt-1 truncate max-w-[250px]">
-                    Para: {generated.originalUrl}
-                  </p>
-                )}
-              </div>
-              <div className="flex gap-2 w-full sm:w-auto shrink-0">
-                <button
-                  onClick={copyToClipboard}
-                  className={`flex-1 sm:flex-none px-6 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${
-                    copied 
-                      ? 'bg-green-600 text-white' 
-                      : 'bg-primary text-primary-foreground hover:opacity-90'
-                  }`}
-                >
-                  {copied ? 'Copiado!' : 'Copiar'}
-                </button>
-                {generated.type !== 'LINK' && (
-                  <button
-                    onClick={() => {
-                      if (generated.type === 'CPF') return generateDoc('cpf');
-                      if (generated.type === 'CNPJ') return generateDoc('cnpj');
-                      if (generated.type === 'CERTIDAO_NASCIMENTO') return generateDoc('certidao-nascimento', certidaoFormat);
-                      if (generated.type === 'CNS') return generateCnsDoc(generated.cnsGenerateType || 'definitivo');
-                    }}
-                    className="p-3 bg-card border border-border text-muted-foreground rounded-xl hover:text-foreground hover:border-primary transition-all"
-                  >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                  </button>
-                )}
-              </div>
+                    {generated.originalUrl && (
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <span className="text-[10px] font-black uppercase tracking-widest opacity-50">ORIGEM:</span>
+                        <p className="text-[10px] font-medium truncate max-w-sm">
+                          {generated.originalUrl}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="py-16 border-2 border-dashed border-border/50 rounded-[2rem] flex flex-col items-center justify-center text-muted-foreground/20">
+                  <Sparkles size={32} className="mb-2 opacity-10" />
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em]">Aguardando ação...</p>
+                </div>
+              )}
             </div>
           </div>
-        ) : (
-          <div className="py-12 border border-dashed border-border rounded-2xl flex flex-col items-center justify-center text-muted-foreground/30">
-            <svg className="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-            </svg>
-            <p className="font-medium text-sm">Aguardando sua ação...</p>
-          </div>
-        )}
+        </main>
       </div>
     </div>
   );
