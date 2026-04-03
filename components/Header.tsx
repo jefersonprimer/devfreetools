@@ -40,7 +40,7 @@ export function Header({ leftElement }: { leftElement?: React.ReactNode }) {
                     <nav className="hidden md:flex items-center space-x-8">
                         <a href="/#features" className="text-sm font-semibold text-muted-foreground hover:text-[#DC5A5A] transition-colors">Recursos</a>
                         <a href="/#tools" className="text-sm font-semibold text-muted-foreground hover:text-[#DC5A5A] transition-colors">Ferramentas</a>
-                        <a href="/#api" className="text-sm font-semibold text-muted-foreground hover:text-[#DC5A5A] transition-colors">API</a>
+                        <a href="/docs" className="text-sm font-semibold text-muted-foreground hover:text-[#DC5A5A] transition-colors">API</a>
                         <a href="/#pricing" className="text-sm font-semibold text-muted-foreground hover:text-[#DC5A5A] transition-colors">Preços</a>
                         {!loading && (
                         user ? (

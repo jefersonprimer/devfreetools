@@ -125,6 +125,14 @@ export default function Home() {
               <p className="text-gray-400 text-lg mb-8 leading-relaxed">
                 Integre nosso endpoint unificado e esqueça a complexidade de lidar com múltiplos provedores de dados.
               </p>
+              <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                <a href="/docs" className="inline-flex items-center justify-center bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20">
+                  Explorar Documentação
+                  <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </a>
+              </div>
               <ul className="space-y-4">
                 {['JSON Nativo', 'Suporte a CORS', 'Versionamento Semântico'].map((item) => (
                   <li key={item} className="flex items-center text-gray-300 font-medium">
@@ -261,8 +269,8 @@ export default function Home() {
             <div>
               <h4 className="text-sm font-black text-foreground uppercase tracking-widest mb-6">Produto</h4>
               <ul className="space-y-4 text-sm font-semibold text-muted-foreground">
-                <li><a href="#" className="hover:text-primary transition-colors">API Reference</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Documentação</a></li>
+                <li><a href="/docs" className="hover:text-primary transition-colors">API Reference</a></li>
+                <li><a href="/docs" className="hover:text-primary transition-colors">Documentação</a></li>
                 <li><a href="#" className="hover:text-primary transition-colors">Status</a></li>
               </ul>
             </div>
