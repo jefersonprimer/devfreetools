@@ -3,7 +3,8 @@
 import { useState } from 'react';
 
 interface GeneratedDoc {
-  type: 'CPF' | 'CNPJ' | 'LINK';
+  type: 'CPF' | 'CNPJ' | 'CERTIDAO_NASCIMENTO' | 'LINK';
+  display?: 'text' | 'json' | 'compact';
   value: string;
   formatted: string;
   originalUrl?: string;
@@ -14,24 +15,62 @@ export function UnifiedGenerator() {
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState<GeneratedDoc | null>(null);
   const [copied, setCopied] = useState(false);
+  const [certidaoFormat, setCertidaoFormat] = useState<'text' | 'json' | 'compact'>('text');
   
   // Link Shortener state
   const [url, setUrl] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  const generateDoc = async (type: 'cpf' | 'cnpj') => {
+  const generateDoc = async (type: 'cpf' | 'cnpj' | 'certidao-nascimento', format?: 'text' | 'json' | 'compact') => {
     setLoading(true);
     setCopied(false);
     setError(null);
     try {
-      const response = await fetch(`/api/v1/${type}/generate`);
+      const response = await fetch(
+        type === 'certidao-nascimento'
+          ? `/api/v1/certidao-nascimento/generate?format=${encodeURIComponent(format || 'text')}`
+          : `/api/v1/${type}/generate`
+      );
       const data = await response.json();
       
       const item = data.data[0];
+
+      if (type === 'certidao-nascimento') {
+        if (format === 'json') {
+          const jsonString = JSON.stringify(item, null, 2);
+          setGenerated({
+            type: 'CERTIDAO_NASCIMENTO',
+            display: 'json',
+            value: jsonString,
+            formatted: item.formatted || item.value || jsonString,
+          });
+        } else if (format === 'compact') {
+          const value = `NUMERO DA CERTIDAO: ${item.numeroCertidao}\nCODIGO DA CERTIDAO: ${item.codigoCertidao}`;
+          setGenerated({
+            type: 'CERTIDAO_NASCIMENTO',
+            display: 'compact',
+            value,
+            formatted: value,
+          });
+        } else {
+          // format === 'text'
+          setGenerated({
+            type: 'CERTIDAO_NASCIMENTO',
+            display: 'text',
+            value: item.value,
+            formatted: item.formatted,
+          });
+        }
+        return;
+      }
+
+      // CPF / CNPJ
+      const generatedType = type === 'cpf' ? 'CPF' : 'CNPJ';
       setGenerated({
-        type: type.toUpperCase() as 'CPF' | 'CNPJ',
+        type: generatedType,
+        display: 'text',
         value: type === 'cpf' ? item.cpf : item.cnpj,
-        formatted: item.formatted
+        formatted: item.formatted,
       });
     } catch (error) {
       console.error('Error generating document:', error);
@@ -114,9 +153,9 @@ export function UnifiedGenerator() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
             <div className="text-center md:text-left">
               <h3 className="text-xl font-bold text-foreground">Gerador de Documentos</h3>
-              <p className="text-muted-foreground text-sm">Gere CPF ou CNPJ válidos para testes.</p>
+              <p className="text-muted-foreground text-sm">Gere dados sintéticos para testes: CPF, CNPJ e certidão.</p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <button
                 onClick={() => generateDoc('cpf')}
                 disabled={loading}
@@ -131,6 +170,26 @@ export function UnifiedGenerator() {
               >
                 Gerar CNPJ
               </button>
+              <div className="flex items-center gap-3">
+                <select
+                  value={certidaoFormat}
+                  onChange={(e) => setCertidaoFormat(e.target.value as 'text' | 'json' | 'compact')}
+                  disabled={loading}
+                  className="px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  aria-label="Formato da certidao"
+                >
+                  <option value="text">Texto</option>
+                  <option value="json">JSON</option>
+                  <option value="compact">Compacto</option>
+                </select>
+                <button
+                  onClick={() => generateDoc('certidao-nascimento', certidaoFormat)}
+                  disabled={loading}
+                  className="px-6 py-2.5 bg-red-500/10 text-red-600 dark:text-red-400 font-bold rounded-xl hover:bg-red-500/20 transition-all border border-red-500/20 whitespace-nowrap"
+                >
+                  Gerar Certidao
+                </button>
+              </div>
             </div>
           </div>
         ) : (
@@ -187,13 +246,36 @@ export function UnifiedGenerator() {
                 <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md mb-2 inline-block ${
                   generated.type === 'CPF' ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400' : 
                   generated.type === 'CNPJ' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' :
+                  generated.type === 'CERTIDAO_NASCIMENTO' ? 'bg-red-500/10 text-red-600 dark:text-red-400' :
                   'bg-green-500/10 text-green-600 dark:text-green-400'
                 }`}>
-                  {generated.type === 'LINK' ? 'Link Curto Gerado' : `${generated.type} Válido`}
+                  {generated.type === 'LINK'
+                    ? 'Link Curto Gerado'
+                    : generated.type === 'CERTIDAO_NASCIMENTO'
+                      ? 'Certidao de Nascimento Válida'
+                      : `${generated.type} Válido`}
                 </span>
-                <div className="text-2xl sm:text-3xl font-mono font-bold text-foreground tracking-tighter truncate">
-                  {generated.formatted}
-                </div>
+
+                {generated.type === 'CERTIDAO_NASCIMENTO' ? (
+                  generated.display === 'json' ? (
+                    <pre className="text-[10px] sm:text-xs font-mono font-bold text-foreground whitespace-pre-wrap break-words mt-2">
+                      {generated.value}
+                    </pre>
+                  ) : generated.display === 'compact' ? (
+                    <pre className="text-xs sm:text-sm font-mono font-bold text-foreground whitespace-pre-wrap break-words mt-2">
+                      {generated.formatted}
+                    </pre>
+                  ) : (
+                    <pre className="text-xs sm:text-sm font-mono font-bold text-foreground whitespace-pre-wrap break-words mt-2">
+                      {generated.formatted}
+                    </pre>
+                  )
+                ) : (
+                  <div className="text-2xl sm:text-3xl font-mono font-bold text-foreground tracking-tighter truncate">
+                    {generated.formatted}
+                  </div>
+                )}
+
                 {generated.originalUrl && (
                   <p className="text-[10px] text-muted-foreground mt-1 truncate max-w-[250px]">
                     Para: {generated.originalUrl}
@@ -213,7 +295,11 @@ export function UnifiedGenerator() {
                 </button>
                 {generated.type !== 'LINK' && (
                   <button
-                    onClick={() => generateDoc(generated.type.toLowerCase() as 'cpf' | 'cnpj')}
+                    onClick={() => {
+                      if (generated.type === 'CPF') return generateDoc('cpf');
+                      if (generated.type === 'CNPJ') return generateDoc('cnpj');
+                      if (generated.type === 'CERTIDAO_NASCIMENTO') return generateDoc('certidao-nascimento', certidaoFormat);
+                    }}
                     className="p-3 bg-card border border-border text-muted-foreground rounded-xl hover:text-foreground hover:border-primary transition-all"
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
