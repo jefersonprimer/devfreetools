@@ -115,11 +115,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {/* Sidebar */}
             <aside
-              className={`fixed lg:static inset-y-0 left-0 z-50 w-64 flex flex-col transition-all duration-300 lg:translate-x-0 ${
+              className={`fixed lg:static inset-y-0 left-0 z-50 w-64 flex flex-col bg-background border-r border-border/50 transition-all duration-300 lg:translate-x-0 ${
                 sidebarOpen ? 'translate-x-0' : '-translate-x-full'
               }`}
             >
-              <div className="flex flex-col h-full lg:h-auto">
+              <div className="flex flex-col h-full lg:h-auto p-6 lg:p-0">
+                <div className="flex items-center justify-between mb-8 lg:hidden">
+                  <span className="text-sm font-bold text-foreground tracking-tight">Menu</span>
+                  <button 
+                    onClick={() => setSidebarOpen(false)}
+                    className="p-2 -mr-2 text-muted-foreground hover:text-foreground"
+                  >
+                    <Menu className="w-5 h-5" />
+                  </button>
+                </div>
+
                 <nav className="flex-1 space-y-1">
                   <p className="px-4 text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] mb-4">
                     Menu Principal
@@ -147,7 +157,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   })}
                 </nav>
 
-                <div className="mt-8 pt-8 border-t border-border/50">
+                <div className="mt-auto lg:mt-8 pt-8 border-t border-border/50">
                   <div className="px-4 py-4 rounded-xl border border-border/50 bg-foreground/[0.02]">
                     <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Plano Atual</p>
                     <div className="flex items-center justify-between mt-2">

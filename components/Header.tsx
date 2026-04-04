@@ -16,7 +16,7 @@ export function Header({ leftElement }: { leftElement?: React.ReactNode }) {
                     <div className="flex items-center space-x-4">
                         {leftElement}
                         <Link href="/" className="flex items-center space-x-3 group">
-                          <div className="w-8 h-8 bg-foreground rounded-lg flex items-center justify-center transition-all duration-300 group-hover:shadow-lg group-hover:shadow-foreground/10 group-hover:-translate-y-0.5">
+                          <div className="w-8 h-8 bg-foreground rounded-lg flex items-center justify-center transition-all duration-300">
                             <span className="text-background font-black text-[10px] tracking-tighter">DFT</span>
                           </div>
                           <span className="text-lg font-bold text-foreground tracking-tight">Devfreetools</span>
@@ -25,9 +25,10 @@ export function Header({ leftElement }: { leftElement?: React.ReactNode }) {
 
                     {/* Desktop Navigation */}
                     <nav className="hidden md:flex items-center space-x-8">
-                        <Link href="/#features" className="text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors">Recursos</Link>
-                        <Link href="/docs" className="text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors">API</Link>
-                        <Link href="/#pricing" className="text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors">Preços</Link>
+                        <Link href="/#tools" className="text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-[#DC5A5A] transition-colors">Ferramentas</Link>
+                        <Link href="/#features" className="text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-[#DC5A5A] transition-colors">Recursos</Link>
+                        <Link href="/docs" className="text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-[#DC5A5A] transition-colors">API</Link>
+                        <Link href="/#pricing" className="text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-[#DC5A5A] transition-colors">Preços</Link>
 
                         {!loading && (
                           <div className="flex items-center gap-6">
@@ -35,7 +36,7 @@ export function Header({ leftElement }: { leftElement?: React.ReactNode }) {
                                 <div className="flex items-center space-x-5">
                                   <a 
                                     href="/dashboard" 
-                                    className="text-xs font-bold uppercase tracking-widest text-foreground hover:opacity-70 transition-opacity"
+                                    className="text-xs font-bold uppercase tracking-widest text-foreground hover:text-[#DC5A5A] transition-opacity"
                                   >
                                     Dashboard
                                   </a>
