@@ -142,7 +142,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       key={item.href}
                       href={item.href}
                       onClick={() => setSidebarOpen(false)}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                      className={`flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                         isActive
                           ? 'bg-primary/10 text-primary border border-primary/20'
                           : 'text-muted-foreground hover:text-foreground hover:bg-muted'

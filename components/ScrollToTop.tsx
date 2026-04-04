@@ -37,7 +37,7 @@ export function ScrollToTop() {
     <button
       onClick={scrollToTop}
       aria-label="Voltar ao topo"
-      className="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg transition-all hover:bg-blue-700 focus:outline-none active:scale-95 md:bottom-8 md:right-8"
+      className="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-[#DC5A5A] text-[#0f0f10] shadow-lg transition-all hover:bg-[#DC5A5A]/90 focus:outline-none active:scale-95 md:bottom-8 md:right-8"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

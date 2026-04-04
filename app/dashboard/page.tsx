@@ -56,7 +56,7 @@ export default function DashboardPage() {
       {/* Welcome */}
       <div>
         <h1 className="text-3xl font-bold text-white tracking-tight">
-          Olá, {data.user.name} 👋
+          Olá, {data.user.name}
         </h1>
         <p className="text-gray-400 mt-1">Aqui está o resumo da sua conta.</p>
       </div>

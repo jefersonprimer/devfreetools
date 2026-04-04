@@ -45,7 +45,7 @@ export function Header({ leftElement }: { leftElement?: React.ReactNode }) {
                         {!loading && (
                         user ? (
                             <div className="flex items-center space-x-4">
-                            <a href="/dashboard" className="text-sm font-medium text-[#0f0f10] bg-[#DC5A5A] px-2 py-1 rounded-md border hover:border-red-600 transition-all">Dashboard</a>
+                            <a href="/dashboard" className="text-sm font-medium text-[#0f0f10] bg-[#DC5A5A] px-2 py-1 rounded-md border hover:border-[#DC5A5A]/90 transition-all">Dashboard</a>
                             <UserMenu />
                             </div>
                         ) : (

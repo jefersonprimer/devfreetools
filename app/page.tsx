@@ -23,9 +23,9 @@ export default function Home() {
         </div>
 
         <div className="max-w-4xl mx-auto text-center px-4">
-          <h1 className="text-5xl sm:text-6xl font-black text-foreground mb-8 tracking-tighter leading-tight">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold text-foreground mb-8 tracking-tighter leading-tight">
             Tudo que um Dev precisa em
-            <span className="block text-transparent bg-clip-text bg-linear-to-r from-blue-600 via-indigo-600 to-purple-600">
+            <span className="block text-[#DC5A5A]">
               Um Só Lugar
             </span>
           </h1>
@@ -275,8 +275,8 @@ export default function Home() {
           </div>
 
           <div className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest">
-              PrimerLabs &copy; 2026. Todos os direitos reservados.
+            <p className="text-sm font-bold text-muted-foreground tracking-widest">
+              &copy; PrimerLabs 2026
             </p>
             <div className="flex space-x-6">
               <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
