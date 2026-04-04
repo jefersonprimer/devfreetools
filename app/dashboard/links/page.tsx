@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Link as LinkIcon, Plus, Copy, Check, Trash2, ExternalLink, MousePointer2, Calendar, AlertCircle, Info, BarChart3 } from 'lucide-react';
 
 type ShortLink = {
   id: string;
@@ -92,207 +93,226 @@ export default function LinksPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <svg className="animate-spin h-6 w-6 text-blue-500" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-        </svg>
+        <div className="w-6 h-6 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="w-full space-y-8 overflow-hidden lg:overflow-visible">
+    <div className="space-y-10 animate-in fade-in duration-500">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">Encurtador de Links</h1>
-          <p className="text-gray-400 mt-1">Crie e gerencie seus links curtos personalizados.</p>
+      <div className="flex items-end justify-between">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Links Curtos</h1>
+          <p className="text-sm text-muted-foreground">Transforme URLs longas em links gerenciáveis.</p>
         </div>
-        <button
-          onClick={() => setShowCreateForm(true)}
-          className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:from-blue-500 hover:to-purple-500 transition-all shadow-lg shadow-blue-500/20 cursor-pointer flex items-center gap-2"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Novo Link
-        </button>
+        {!showCreateForm && (
+          <button
+            onClick={() => setShowCreateForm(true)}
+            className="flex items-center gap-2 bg-foreground text-background px-4 py-2 rounded-lg text-sm font-bold transition-all hover:bg-foreground/90 active:scale-[0.98]"
+          >
+            <Plus className="w-4 h-4" />
+            Novo Link
+          </button>
+        )}
       </div>
 
       {/* Create form */}
       {showCreateForm && (
-        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6">
-          <h3 className="text-white font-bold text-sm mb-4">Encurtar nova URL</h3>
-          <form onSubmit={handleCreate} className="space-y-4">
-            <div className="grid md:grid-cols-3 gap-4">
-              <div className="md:col-span-2">
-                <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                  URL Original
-                </label>
-                <input
-                  type="url"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  placeholder="https://sua-url-longa.com/alguma-coisa"
-                  className="w-full px-4 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-sm"
-                  required
-                  autoFocus
-                />
+        <div className="rounded-2xl border border-border/50 bg-foreground/[0.02] p-8 animate-in slide-in-from-top-4 duration-300">
+          <div className="max-w-2xl">
+            <h3 className="text-sm font-bold uppercase tracking-widest mb-6">Encurtar nova URL</h3>
+            <form onSubmit={handleCreate} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="md:col-span-3 space-y-2">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">
+                    URL Original
+                  </label>
+                  <input
+                    type="url"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    placeholder="https://sua-url-longa.com/path/to/resource"
+                    className="w-full px-4 py-3 bg-background border border-border/50 rounded-xl text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-foreground/10 transition-all"
+                    required
+                    autoFocus
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">
+                    Expiração (Dias)
+                  </label>
+                  <input
+                    type="number"
+                    value={expiresInDays}
+                    onChange={(e) => setExpiresInDays(parseInt(e.target.value))}
+                    className="w-full px-4 py-3 bg-background border border-border/50 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-foreground/10 transition-all"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                  Expira em (dias)
-                </label>
-                <input
-                  type="number"
-                  value={expiresInDays}
-                  onChange={(e) => setExpiresInDays(parseInt(e.target.value))}
-                  placeholder="30"
-                  className="w-full px-4 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-sm"
-                />
+
+              {error && (
+                <div className="flex items-center gap-2 text-red-500 text-xs font-medium bg-red-500/5 p-3 rounded-lg border border-red-500/10">
+                  <AlertCircle className="w-4 h-4" />
+                  {error}
+                </div>
+              )}
+
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  type="submit"
+                  disabled={creating || !url.trim()}
+                  className="bg-foreground text-background px-8 py-3 rounded-xl font-bold text-sm hover:bg-foreground/90 disabled:opacity-50 transition-all active:scale-[0.98]"
+                >
+                  {creating ? 'Processando...' : 'Encurtar URL'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setShowCreateForm(false); setError(null); }}
+                  className="px-6 py-3 rounded-xl text-sm font-bold text-muted-foreground hover:bg-foreground/5 transition-all"
+                >
+                  Cancelar
+                </button>
               </div>
-            </div>
-
-            {error && <p className="text-red-400 text-xs font-medium">{error}</p>}
-
-            <div className="flex items-center gap-3">
-              <button
-                type="submit"
-                disabled={creating || !url.trim()}
-                className="bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-500 transition-colors disabled:opacity-50 cursor-pointer"
-              >
-                {creating ? 'Processando...' : 'Encurtar'}
-              </button>
-              <button
-                type="button"
-                onClick={() => { setShowCreateForm(false); setError(null); }}
-                className="text-gray-400 hover:text-white px-4 py-2.5 rounded-xl text-sm hover:bg-white/[0.04] transition-all cursor-pointer"
-              >
-                Cancelar
-              </button>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       )}
 
-      {/* Links table */}
-      <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl overflow-hidden">
+      {/* Links list */}
+      <div className="space-y-4">
+        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] ml-1 mb-6">
+          Seus Links Ativos
+        </p>
+
         {links.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="w-16 h-16 bg-white/[0.04] rounded-2xl flex items-center justify-center mx-auto mb-4 text-gray-500">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-              </svg>
+          <div className="flex flex-col items-center justify-center py-20 rounded-3xl border border-dashed border-border/50 bg-foreground/[0.01]">
+            <div className="w-12 h-12 rounded-2xl bg-foreground/5 flex items-center justify-center mb-4">
+              <LinkIcon className="w-6 h-6 text-muted-foreground/50" />
             </div>
-            <p className="text-gray-400 font-medium">Nenhum link encurtado ainda</p>
+            <p className="text-sm font-medium text-muted-foreground">Nenhum link encurtado encontrado.</p>
+            <button 
+              onClick={() => setShowCreateForm(true)}
+              className="mt-4 text-xs font-bold text-primary hover:underline underline-offset-4"
+            >
+              Criar meu primeiro link →
+            </button>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-white/[0.06] bg-white/[0.01]">
-                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Link Curto</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">URL Original</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-center">Cliques</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-right">Ações</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/[0.04]">
-                {links.map((link) => {
-                  const isExpired = link.expiresAt && new Date(link.expiresAt) < new Date();
-                  return (
-                    <tr key={link.id} className="hover:bg-white/[0.02] transition-colors group">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <code className="text-blue-400 font-mono text-sm">/l/{link.code}</code>
-                          <button
-                            onClick={() => copyToClipboard(link.code, link.id)}
-                            className="p-1.5 text-gray-500 hover:text-white hover:bg-white/[0.06] rounded-md transition-all opacity-0 group-hover:opacity-100 cursor-pointer"
-                            title="Copiar URL completa"
-                          >
-                            {copiedId === link.id ? (
-                              <svg className="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                              </svg>
-                            ) : (
-                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                              </svg>
-                            )}
-                          </button>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 max-w-xs">
-                        <p className="text-gray-400 text-sm truncate" title={link.originalUrl}>
-                          {link.originalUrl}
-                        </p>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <span className="text-white font-bold text-sm bg-white/[0.04] px-3 py-1 rounded-full">
-                          {link.clicks}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        {isExpired ? (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20">
-                            Expirado
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">
-                            Ativo
-                          </span>
-                        )}
-                        {link.expiresAt && !isExpired && (
-                          <p className="text-[10px] text-gray-500 mt-1">
-                            Expira em {new Date(link.expiresAt).toLocaleDateString('pt-BR')}
+          <div className="rounded-2xl border border-border/50 bg-foreground/[0.01] overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-border/50 bg-foreground/[0.01]">
+                    <th className="px-6 py-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Link Curto</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">URL Original</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-center">Cliques</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Status</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/50">
+                  {links.map((link) => {
+                    const isExpired = link.expiresAt && new Date(link.expiresAt) < new Date();
+                    return (
+                      <tr key={link.id} className="group hover:bg-foreground/[0.02] transition-colors">
+                        <td className="px-6 py-5">
+                          <div className="flex items-center gap-3">
+                            <code className="text-primary font-mono text-sm font-semibold tracking-tight">/l/{link.code}</code>
+                            <button
+                              onClick={() => copyToClipboard(link.code, link.id)}
+                              className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-foreground/5 rounded-md transition-all opacity-0 group-hover:opacity-100"
+                              title="Copiar link"
+                            >
+                              {copiedId === link.id ? (
+                                <Check className="w-3.5 h-3.5 text-emerald-500" />
+                              ) : (
+                                <Copy className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                          </div>
+                        </td>
+                        <td className="px-6 py-5 max-w-xs">
+                          <p className="text-muted-foreground text-xs truncate font-medium" title={link.originalUrl}>
+                            {link.originalUrl}
                           </p>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <button
-                          onClick={() => handleDelete(link.id)}
-                          className="text-gray-500 hover:text-red-400 p-2 rounded-lg hover:bg-white/[0.04] transition-colors cursor-pointer"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                        </td>
+                        <td className="px-6 py-5 text-center">
+                          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-foreground bg-foreground/5 px-2.5 py-1 rounded-full">
+                            <MousePointer2 className="w-3 h-3 opacity-50" />
+                            {link.clicks}
+                          </div>
+                        </td>
+                        <td className="px-6 py-5">
+                          <div className="flex flex-col gap-1">
+                            {isExpired ? (
+                              <span className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-red-500 bg-red-500/10 px-2 py-0.5 rounded-full w-fit">
+                                Expirado
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full w-fit">
+                                Ativo
+                              </span>
+                            )}
+                            {link.expiresAt && (
+                              <span className="text-[10px] text-muted-foreground/60 flex items-center gap-1">
+                                <Calendar className="w-2.5 h-2.5" />
+                                {new Date(link.expiresAt).toLocaleDateString('pt-BR')}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-5 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <a
+                              href={`${baseUrl}/l/${link.code}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-all opacity-0 group-hover:opacity-100"
+                              title="Abrir link"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </a>
+                            <button
+                              onClick={() => handleDelete(link.id)}
+                              className="p-2 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"
+                              title="Excluir"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>
 
-      {/* Info card */}
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="bg-blue-500/5 border border-blue-500/10 rounded-2xl p-5 flex gap-4">
-          <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center shrink-0">
-            <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+      {/* Info section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
+        <div className="rounded-2xl border border-border/50 p-6 flex items-start gap-4 hover:border-border transition-colors group">
+          <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110">
+            <Info className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h4 className="text-white font-bold text-sm">Links Públicos</h4>
-            <p className="text-gray-400 text-xs mt-1 leading-relaxed">
-              Todos os links curtos são públicos. Qualquer pessoa com o link poderá ser redirecionada. O controle de acesso é apenas para quem cria/gerencia.
+            <h3 className="text-sm font-semibold">Links Públicos</h3>
+            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+              Todos os links encurtados são públicos por padrão. Certifique-se de não encurtar URLs que contenham informações sensíveis ou tokens de acesso.
             </p>
           </div>
         </div>
-        <div className="bg-purple-500/5 border border-purple-500/10 rounded-2xl p-5 flex gap-4">
-          <div className="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center shrink-0">
-            <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002 2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
+        <div className="rounded-2xl border border-border/50 p-6 flex items-start gap-4 hover:border-border transition-colors group">
+          <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110">
+            <BarChart3 className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h4 className="text-white font-bold text-sm">Estatísticas em Tempo Real</h4>
-            <p className="text-gray-400 text-xs mt-1 leading-relaxed">
-              O contador de cliques é atualizado instantaneamente cada vez que alguém acessa seu link curto.
+            <h3 className="text-sm font-semibold">Métricas de Acesso</h3>
+            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+              Acompanhamos o número de cliques em tempo real. Em breve, você terá acesso a estatísticas detalhadas como origem geográfica e dispositivos.
             </p>
           </div>
         </div>

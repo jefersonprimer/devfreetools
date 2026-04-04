@@ -47,7 +47,7 @@ export default function DocsLayout({
           <nav className="sticky top-24 space-y-8">
             {sidebarItems.map((group) => (
               <div key={group.group}>
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4 px-3">
+                <h3 className="text-[11px] font-bold text-foreground/40 uppercase tracking-[0.2em] mb-4 px-3">
                   {group.group}
                 </h3>
                 <div className="space-y-1">
@@ -60,9 +60,7 @@ export default function DocsLayout({
 
         {/* Content */}
         <main className="flex-1 min-w-0 pb-16">
-          <div className="prose dark:prose-invert prose-blue max-w-none">
-            {children}
-          </div>
+          {children}
         </main>
       </div>
     </div>
@@ -80,13 +78,13 @@ function SidebarNav({ items }: { items: any[] }) {
           <Link
             key={item.href}
             href={item.href}
-            className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+            className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${
               isActive 
-                ? "bg-blue-600/10 text-blue-600 dark:bg-blue-600/20 dark:text-blue-400" 
-                : "hover:bg-accent hover:text-accent-foreground text-foreground/70"
+                ? "bg-[#DC5A5A]/5 text-[#DC5A5A] ring-1 ring-[#DC5A5A]/20" 
+                : "hover:bg-muted text-foreground/60 hover:text-foreground"
             }`}
           >
-            <item.icon className={`w-4 h-4 ${isActive ? "text-blue-600 dark:text-blue-400" : ""}`} />
+            <item.icon className={`w-4 h-4 ${isActive ? "text-[#DC5A5A]" : "text-foreground/40"}`} />
             {item.name}
           </Link>
         );

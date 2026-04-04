@@ -1,8 +1,7 @@
-'use client';
-
 import { UnifiedSearch } from '@/components/UnifiedSearch';
 import { UnifiedGenerator } from '@/components/UnifiedGenerator';
 import { Header } from '@/components/Header';
+import { Link2, ShieldCheck, Zap, Globe, Cpu, Code2, ArrowRight } from 'lucide-react';
 
 export default function Home() {
 
@@ -49,56 +48,103 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-24 bg-background">
+      <section id="features" className="py-32 bg-background relative overflow-hidden">
+        {/* Decorative background elements */}
+        <div className="absolute top-1/2 left-0 -translate-y-1/2 w-96 h-96 bg-blue-500/5 rounded-full blur-[120px] -z-10" />
+        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-[120px] -z-10" />
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-20">
-            <h2 className="text-3xl font-black text-foreground mb-4 tracking-tight">
-              Infraestrutura de Confiança
+          <div className="max-w-3xl mb-20">
+            <h2 className="text-sm font-bold text-[#DC5A5A] uppercase tracking-[0.2em] mb-4">
+              Por que nos escolher
             </h2>
-            <p className="text-lg text-muted-foreground">
-              Tecnologia de ponta para garantir a melhor experiência de consulta
-            </p>
+            <h3 className="text-4xl md:text-5xl font-semibold text-foreground tracking-tight leading-[1.1]">
+              Infraestrutura pensada para <br />
+              <span className="text-muted-foreground">escala e performance.</span>
+            </h3>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-12">
-            <div className="group p-8 rounded-3xl hover:bg-muted/50 transition-all duration-300">
-              <div className="w-14 h-14 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <svg className="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                </svg>
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 auto-rows-[280px]">
+            {/* Feature 1: Links (Large/Wide) */}
+            <div className="md:col-span-7 md:row-span-2 group relative overflow-hidden rounded-[2.5rem] border border-border/50 bg-card/50 backdrop-blur-sm p-10 transition-all duration-500 hover:border-border/80 hover:shadow-2xl hover:shadow-blue-500/5">
+              <div className="absolute top-0 right-0 p-12 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity duration-500">
+                <Link2 size={240} className="text-blue-500" />
               </div>
-              <h3 className="text-xl font-bold text-foreground mb-3 tracking-tight">Links Inteligentes</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                Encurte URLs e acompanhe cliques em tempo real com nosso encurtador integrado.
-              </p>
+              <div className="relative z-10 flex flex-col h-full justify-between">
+                <div>
+                  <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500 ring-1 ring-blue-500/20">
+                    <Link2 className="w-7 h-7 text-blue-500" />
+                  </div>
+                  <h4 className="text-2xl font-semibold text-foreground mb-4 tracking-tight">Links Inteligentes & Analytics</h4>
+                  <p className="text-lg text-muted-foreground leading-relaxed max-w-sm">
+                    Encurte URLs com alta performance e acompanhe métricas detalhadas em tempo real com nosso encurtador integrado.
+                  </p>
+                </div>
+                <div className="flex items-center gap-4 pt-8">
+                  <div className="h-[1px] flex-1 bg-gradient-to-r from-blue-500/50 to-transparent" />
+                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Enterprise Ready</span>
+                </div>
+              </div>
             </div>
 
-            <div className="group p-8 rounded-3xl hover:bg-muted/50 transition-all duration-300">
-              <div className="w-14 h-14 bg-purple-100 dark:bg-purple-900/30 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <svg className="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+            {/* Feature 2: Validation (Medium) */}
+            <div className="md:col-span-5 md:row-span-1 group relative overflow-hidden rounded-[2.5rem] border border-border/50 bg-card/50 backdrop-blur-sm p-8 transition-all duration-500 hover:border-border/80 hover:shadow-2xl hover:shadow-purple-500/5">
+              <div className="relative z-10 flex flex-col h-full">
+                <div className="flex items-center gap-5 mb-6">
+                  <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500 ring-1 ring-purple-500/20">
+                    <ShieldCheck className="w-6 h-6 text-purple-500" />
+                  </div>
+                  <h4 className="text-xl font-semibold text-foreground tracking-tight">Validação de Documentos</h4>
+                </div>
+                <p className="text-muted-foreground leading-relaxed">
+                  Heurísticas avançadas para validar CPFs e consultar dados reais de CNPJ em segundos.
+                </p>
               </div>
-              <h3 className="text-xl font-bold text-foreground mb-3 tracking-tight">Validação de Documentos</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                Heurísticas avançadas para validar CPFs e consultar dados reais de CNPJ em segundos.
-              </p>
             </div>
 
-            <div className="group p-8 rounded-3xl hover:bg-muted/50 transition-all duration-300">
-              <div className="w-14 h-14 bg-indigo-100 dark:bg-indigo-900/30 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <svg className="w-7 h-7 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
+            {/* Feature 3: Global Edge (Medium) */}
+            <div className="md:col-span-5 md:row-span-1 group relative overflow-hidden rounded-[2.5rem] border border-border/50 bg-card/50 backdrop-blur-sm p-8 transition-all duration-500 hover:border-border/80 hover:shadow-2xl hover:shadow-emerald-500/5">
+              <div className="relative z-10 flex flex-col h-full">
+                <div className="flex items-center gap-5 mb-6">
+                  <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500 ring-1 ring-emerald-500/20">
+                    <Globe className="w-6 h-6 text-emerald-500" />
+                  </div>
+                  <h4 className="text-xl font-semibold text-foreground tracking-tight">Global Edge Network</h4>
+                </div>
+                <p className="text-muted-foreground leading-relaxed">
+                  Latência mínima com servidores distribuídos estrategicamente para garantir respostas rápidas.
+                </p>
               </div>
-              <h3 className="text-xl font-bold text-foreground mb-3 tracking-tight">Developer-First</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                Webhooks, documentação OpenAPI e SDKs para as principais linguagens de programação.
-              </p>
+            </div>
+
+            {/* Feature 4: Developer-First (Full Width) */}
+            <div className="md:col-span-12 md:row-span-1 group relative overflow-hidden rounded-[2.5rem] border border-border/50 bg-card/50 backdrop-blur-sm p-10 transition-all duration-500 hover:border-border/80 hover:shadow-2xl hover:shadow-indigo-500/5">
+              <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between h-full gap-8">
+                <div className="flex-1">
+                  <div className="flex items-center gap-6 mb-4">
+                    <div className="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500 ring-1 ring-indigo-500/20">
+                      <Code2 className="w-6 h-6 text-indigo-500" />
+                    </div>
+                    <h4 className="text-2xl font-semibold text-foreground tracking-tight">Developer-First Experience</h4>
+                  </div>
+                  <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl">
+                    Documentação impecável, SDKs modernos e Webhooks integrados para uma integração fluida em minutos.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  {['SDK Java', 'OpenAPI 3.0', 'Webhooks'].map((tag) => (
+                    <div key={tag} className="px-5 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-xs font-bold text-foreground/70 uppercase tracking-widest transition-colors group-hover:bg-muted group-hover:text-foreground">
+                      {tag}
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
+
+
 
       {/* API Section */}
       <section id="api" className="py-24 bg-slate-950 relative overflow-hidden">

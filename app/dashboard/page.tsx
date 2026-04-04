@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Activity, CreditCard, Key, ArrowUpRight, Copy, Check } from 'lucide-react';
 
 type DashboardData = {
   user: {
@@ -25,6 +26,7 @@ const planLimits: Record<string, number> = {
 
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     fetch('/api/v1/auth/me')
@@ -33,108 +35,159 @@ export default function DashboardPage() {
       .catch(console.error);
   }, []);
 
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   if (!data) {
     return (
       <div className="flex items-center justify-center h-64">
-        <svg className="animate-spin h-6 w-6 text-blue-500" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-        </svg>
+        <div className="w-6 h-6 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
       </div>
     );
   }
 
   const limit = planLimits[data.user.plan] || 100;
   const usagePercent = Math.min((data.usage.totalRequests / limit) * 100, 100);
-  const memberSince = new Date(data.user.createdAt).toLocaleDateString('pt-BR', {
-    month: 'long',
-    year: 'numeric',
-  });
-
+  
   return (
-    <div className="w-full space-y-8 overflow-hidden lg:overflow-visible">
-      {/* Welcome */}
-      <div>
-        <h1 className="text-3xl font-bold text-white tracking-tight">
-          Olá, {data.user.name}
+    <div className="space-y-10 animate-in fade-in duration-500">
+      {/* Welcome Header */}
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+          Olá, {data.user.name.split(' ')[0]}
         </h1>
-        <p className="text-gray-400 mt-1">Aqui está o resumo da sua conta.</p>
+        <p className="text-sm text-muted-foreground">
+          Gerencie suas chaves, acompanhe o uso e explore a API.
+        </p>
       </div>
 
-      {/* Stats cards */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Plan Card */}
-        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6 hover:border-white/[0.1] transition-colors">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Plano</span>
-            <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center">
-              <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-              </svg>
-            </div>
-          </div>
-          <p className="text-2xl font-bold text-white capitalize">{data.user.plan}</p>
-          <p className="text-gray-500 text-sm mt-1">Membro desde {memberSince}</p>
-        </div>
-
+      {/* Main Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Usage Card */}
-        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6 hover:border-white/[0.1] transition-colors">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Uso Mensal</span>
-            <div className="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center">
-              <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-              </svg>
+        <div className="group relative overflow-hidden rounded-2xl border border-border/50 bg-foreground/[0.02] p-6 transition-all hover:bg-foreground/[0.04]">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <Activity className="w-4 h-4 text-muted-foreground" />
+              <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Uso Mensal</span>
             </div>
+            <span className="text-[10px] font-medium text-muted-foreground bg-foreground/5 px-2 py-0.5 rounded-full">
+              {usagePercent.toFixed(1)}%
+            </span>
           </div>
-          <p className="text-2xl font-bold text-white">
-            {data.usage.totalRequests.toLocaleString('pt-BR')}
-            <span className="text-gray-500 text-base font-normal"> / {limit.toLocaleString('pt-BR')}</span>
-          </p>
-          <div className="mt-3 h-2 bg-white/[0.06] rounded-full overflow-hidden">
-            <div
-              className={`h-full rounded-full transition-all duration-500 ${
-                usagePercent > 80 ? 'bg-red-500' : usagePercent > 50 ? 'bg-yellow-500' : 'bg-gradient-to-r from-blue-500 to-purple-500'
-              }`}
+          <div className="mt-4 flex items-baseline gap-2">
+            <span className="text-3xl font-bold tracking-tight">{data.usage.totalRequests.toLocaleString('pt-BR')}</span>
+            <span className="text-sm text-muted-foreground">/ {limit.toLocaleString('pt-BR')}</span>
+          </div>
+          <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-foreground/5">
+            <div 
+              className="h-full bg-primary transition-all duration-1000 ease-out"
               style={{ width: `${usagePercent}%` }}
             />
           </div>
-          <p className="text-gray-500 text-sm mt-2">{usagePercent.toFixed(1)}% utilizado</p>
+        </div>
+
+        {/* Plan Card */}
+        <div className="group relative overflow-hidden rounded-2xl border border-border/50 bg-foreground/[0.02] p-6 transition-all hover:bg-foreground/[0.04]">
+          <div className="flex items-center gap-2.5 mb-4">
+            <CreditCard className="w-4 h-4 text-muted-foreground" />
+            <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Plano Atual</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-3xl font-bold tracking-tight capitalize">{data.user.plan}</span>
+            <a href="/#pricing" className="text-muted-foreground hover:text-foreground transition-colors">
+              <ArrowUpRight className="w-5 h-5" />
+            </a>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground font-medium">
+            Renova em 1º de {new Date().toLocaleDateString('pt-BR', { month: 'long' })}
+          </p>
         </div>
 
         {/* API Keys Card */}
-        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6 hover:border-white/[0.1] transition-colors">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">API Keys</span>
-            <div className="w-10 h-10 bg-green-500/10 rounded-xl flex items-center justify-center">
-              <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-              </svg>
-            </div>
+        <div className="group relative overflow-hidden rounded-2xl border border-border/50 bg-foreground/[0.02] p-6 transition-all hover:bg-foreground/[0.04]">
+          <div className="flex items-center gap-2.5 mb-4">
+            <Key className="w-4 h-4 text-muted-foreground" />
+            <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Chaves Ativas</span>
           </div>
-          <p className="text-2xl font-bold text-white">{data.totalKeys}</p>
-          <p className="text-gray-500 text-sm mt-1">
-            <a href="/dashboard/keys" className="text-blue-400 hover:text-blue-300 transition-colors font-medium">
-              Gerenciar keys →
+          <div className="flex items-center justify-between">
+            <span className="text-3xl font-bold tracking-tight">{data.totalKeys}</span>
+            <a href="/dashboard/keys" className="text-xs font-bold text-primary hover:underline underline-offset-4">
+              GERENCIAR
             </a>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground font-medium">
+            Sempre mantenha suas chaves seguras.
           </p>
         </div>
       </div>
 
-      {/* Quick Start */}
-      <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6">
-        <h2 className="text-lg font-bold text-white tracking-tight mb-4">Quick Start</h2>
-        <p className="text-gray-400 text-sm mb-4">Use sua API key para fazer consultas:</p>
-        <div className="bg-black/40 rounded-xl p-4 overflow-x-auto border border-white/[0.04]">
-          <pre className="text-sm font-mono">
-            <code>
-              <span className="text-blue-400">curl</span>
-              <span className="text-gray-300"> -H </span>
-              <span className="text-green-400">&quot;Authorization: Bearer SUA_API_KEY&quot;</span>
-              <span className="text-gray-300"> \{'\n'}</span>
-              <span className="text-gray-300">{'  '}https://primerapi.com/api/cnpj/11222333000181</span>
-            </code>
-          </pre>
+      {/* Quick Start Section */}
+      <div className="rounded-2xl border border-border/50 bg-foreground/[0.01] overflow-hidden">
+        <div className="border-b border-border/50 px-6 py-4 flex items-center justify-between bg-foreground/[0.01]">
+          <div className="flex items-center gap-3">
+            <div className="flex gap-1.5">
+              <div className="w-2.5 h-2.5 rounded-full bg-red-500/20" />
+              <div className="w-2.5 h-2.5 rounded-full bg-amber-500/20" />
+              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/20" />
+            </div>
+            <span className="text-xs font-medium text-muted-foreground ml-2">Quick Start - Consulta CNPJ</span>
+          </div>
+          <button 
+            onClick={() => copyToClipboard('curl -H "Authorization: Bearer SUA_API_KEY" https://primerapi.com/api/v1/cnpj/11222333000181')}
+            className="flex items-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? 'Copiado' : 'Copiar'}
+          </button>
+        </div>
+        <div className="p-6 font-mono text-sm leading-relaxed overflow-x-auto bg-black/5 dark:bg-black/40">
+          <div className="flex gap-4">
+            <span className="text-muted-foreground/30 select-none">1</span>
+            <p className="text-foreground">
+              <span className="text-primary/80">curl</span> -H <span className="text-emerald-500/80">&quot;Authorization: Bearer SUA_API_KEY&quot;</span> \
+            </p>
+          </div>
+          <div className="flex gap-4">
+            <span className="text-muted-foreground/30 select-none">2</span>
+            <p className="text-foreground">
+              {"  "}https://primerapi.com/api/v1/cnpj/11222333000181
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom info */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="rounded-2xl border border-border/50 p-6 flex items-start gap-4 hover:border-border transition-colors">
+          <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center flex-shrink-0">
+            <Activity className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold">Documentação da API</h3>
+            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+              Explore todos os endpoints disponíveis, limites de taxa e exemplos de integração em nossa documentação completa.
+            </p>
+            <a href="/docs" className="inline-block mt-3 text-xs font-bold text-primary hover:underline underline-offset-4">
+              LER DOCS →
+            </a>
+          </div>
+        </div>
+        <div className="rounded-2xl border border-border/50 p-6 flex items-start gap-4 hover:border-border transition-colors">
+          <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center flex-shrink-0">
+            <Key className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold">Segurança das Chaves</h3>
+            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+              Nunca compartilhe suas chaves de API. Se você suspeitar que uma chave foi comprometida, revogue-a imediatamente.
+            </p>
+            <a href="/dashboard/keys" className="inline-block mt-3 text-xs font-bold text-primary hover:underline underline-offset-4">
+              VER SEGURANÇA →
+            </a>
+          </div>
         </div>
       </div>
     </div>
